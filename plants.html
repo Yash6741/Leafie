@@ -11,7 +11,8 @@
     html,body{height:100%;}
     body{margin:0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:var(--bg); color:var(--dark); display:flex;}
     .sidebar{width:220px; background:#eaf6ea; padding:28px 20px; box-shadow: inset -1px 0 0 rgba(0,0,0,0.03); display:flex; flex-direction:column; gap:18px;}
-    .brand{display:flex; align-items:center; gap:10px; font-weight:700; color:var(--green);} .nav{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; color:var(--green);} 
+    .nav{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
     .nav a{ color:#2f4a50; text-decoration:none; padding:10px 8px; border-radius:8px; display:flex; gap:10px; align-items:center; }
     .nav a.active{ background:rgba(0,0,0,0.03); }
     .footer-note{ margin-top:auto; font-size:13px; color:#2f6b5b; }
@@ -37,9 +38,14 @@
     .option h4{ margin:0; font-size:15px; }
     .close-x{ float:right; cursor:pointer; }
 
-    @media (max-width:900px){ .slots{ grid-template-columns:1fr; } .sidebar{display:none;} .modal{ width:92%; } }
+    @media (max-width:900px){
+      .slots{ grid-template-columns:1fr; }
+      .sidebar{display:none;}
+      .modal{ width:92%; }
+    }
   </style>
 </head>
+
 <body>
   <aside class="sidebar">
     <div class="brand">Leafie</div>
@@ -53,10 +59,10 @@
 
   <main>
     <div class="page-title">Plants</div>
-    <div class="slots" id="slots">
-    </div>
+    <div class="slots" id="slots"></div>
   </main>
 
+  <!-- MODAL TEMPLATE -->
   <template id="modalTpl">
     <div class="modal-backdrop" id="backdrop">
       <div class="modal">
@@ -64,120 +70,157 @@
           <div style="font-weight:800; font-size:18px;">Choose a plant</div>
           <div class="close-x" id="closeBtn">✕</div>
         </div>
+
         <div class="options">
           <div class="option" data-key="fiddle">
-            <img src="https://images.unsplash.com/photo-1595661001400-2c60b2c8a3b1?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=1a0e4c9c2bcf0a7d5834d26bfe8d5b9f">
+            <img src="https://images.unsplash.com/photo-1595661001400-2c60b2c8a3b1?q=80">
             <div>
               <h4>Fiddle Leaf Plant</h4>
               <div class="small">Large glossy leaves</div>
             </div>
           </div>
+
           <div class="option" data-key="succulent">
-            <img src="https://images.unsplash.com/photo-1518972559570-0b92d0d9d8f6?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=3e3c2b7b7b2a4f5b9f6b8c1a2b3c4d5e">
+            <img src="https://images.unsplash.com/photo-1518972559570-0b92d0d9d8f6?q=80">
             <div>
               <h4>Hole Plant</h4>
               <div class="small">Large, trendy leaves with holes</div>
             </div>
           </div>
+
           <div class="option" data-key="herb">
-            <img src="https://images.unsplash.com/photo-1547516508-4f9fda1a46b8?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=abcd1234abcd1234abcd1234abcd1234">
+            <img src="https://images.unsplash.com/photo-1547516508-4f9fda1a46b8?q=80">
             <div>
               <h4>Peace Lily</h4>
               <div class="small">Elegant white blooms, likes humidity</div>
             </div>
           </div>
+
           <div class="option" data-key="fern">
-            <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&s=efef5678efef5678efef5678efef5678">
+            <img src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80">
             <div>
               <h4>Gold Palm</h4>
               <div class="small">Airy fronds and tropical feel</div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </template>
 
   <script>
+    // FIXED IMAGE & PLANT DATA
     const PLANTS = {
-      Fiddle: { name: 'Fiddle Leaf Plant', query: 'fiddle leaf fig' },
-      Hole: { name: 'Hole Plant', query: 'monstera' },
-      Peace: { name: 'Peace Lily', query: 'peace lily' },
-      Gold: { name: 'Gold Palm', query: 'gold palm' }
+      fiddle: {
+        name: "Fiddle Leaf Plant",
+        img: "https://images.unsplash.com/photo-1595661001400-2c60b2c8a3b1?q=80"
+      },
+      succulent: {
+        name: "Hole Plant",
+        img: "https://images.unsplash.com/photo-1518972559570-0b92d0d9d8f6?q=80"
+      },
+      herb: {
+        name: "Peace Lily",
+        img: "https://images.unsplash.com/photo-1547516508-4f9fda1a46b8?q=80"
+      },
+      fern: {
+        name: "Gold Palm",
+        img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?q=80"
+      }
     };
 
     const slotsEl = document.getElementById('slots');
-    let plantsState = JSON.parse(localStorage.getItem('leafie.plants')||'[null,null,null,null]');
+    let plantsState = JSON.parse(localStorage.getItem('leafie.plants') || '[null,null,null,null]');
 
-    function save(){ localStorage.setItem('leafie.plants', JSON.stringify(plantsState)); }
+    function save() {
+      localStorage.setItem('leafie.plants', JSON.stringify(plantsState));
+    }
 
-    function renderSlots(){
+    function renderSlots() {
       slotsEl.innerHTML = '';
-      for(let i=0;i<4;i++){
-        const slot = document.createElement('div'); slot.className='slot';
-        if(plantsState[i]){
+      for (let i = 0; i < 4; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'slot';
+
+        if (plantsState[i]) {
           const p = plantsState[i];
           slot.innerHTML = `
             <div class="plant-card">
               <img src="${p.img}" alt="${p.name}">
               <div class="plant-name">${p.name}</div>
-              <div class="plant-type">${p.typeLabel||p.name}</div>
+              <div class="plant-type">${p.name}</div>
               <div class="slot-actions">
                 <button class="btn-ghost" data-action="change" data-index="${i}">Change</button>
                 <button class="btn-ghost" data-action="remove" data-index="${i}">Remove</button>
               </div>
             </div>`;
         } else {
-          slot.innerHTML = `<div style="text-align:center;"><div style="font-weight:700;margin-bottom:12px;">Empty slot</div><button class="add-btn" data-index="${i}">+ Add plant</button></div>`;
+          slot.innerHTML = `
+            <div style="text-align:center;">
+              <div style="font-weight:700;margin-bottom:12px;">Empty slot</div>
+              <button class="add-btn" data-index="${i}">+ Add plant</button>
+            </div>`;
         }
+
         slotsEl.appendChild(slot);
       }
     }
 
-    function openModal(slotIndex){
+    function openModal(slotIndex) {
       const tpl = document.getElementById('modalTpl');
-      const node = tpl.content.cloneNode(true);
-      const backdrop = node.querySelector('.modal-backdrop');
+      const modalNode = tpl.content.cloneNode(true);
+      const backdrop = modalNode.querySelector('.modal-backdrop');
 
-      const opts = node.querySelectorAll('.option');
-      opts.forEach(opt => {
-        const key = opt.getAttribute('data-key');
-        const q = (PLANTS[key] && PLANTS[key].query) ? PLANTS[key].query : PLANTS[key].name;
-        const img = opt.querySelector('img');
-        if(img){ img.src = `https://source.unsplash.com/400x300/?${encodeURIComponent(q)}`; }
-      });
-      document.body.appendChild(backdrop);
+      function close() { backdrop.remove(); }
 
-      function close(){ backdrop.remove(); }
       backdrop.querySelector('#closeBtn').addEventListener('click', close);
-      backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) close(); });
+      backdrop.addEventListener('click', (e) => { if (e.target === backdrop) close(); });
 
-      
       const options = backdrop.querySelectorAll('.option');
-      options.forEach(opt=>{
-        opt.addEventListener('click', ()=>{
+      options.forEach(opt => {
+        opt.addEventListener('click', () => {
           const key = opt.getAttribute('data-key');
           const def = PLANTS[key];
-          const q = (def && def.query) ? def.query : def.name;
-          const imageUrl = `https://source.unsplash.com/400x300/?${encodeURIComponent(q)}`;
-          plantsState[slotIndex] = { key, name: def.name, img: imageUrl, typeLabel: def.name };
-          save(); renderSlots(); close();
+
+          plantsState[slotIndex] = {
+            key,
+            name: def.name,
+            img: def.img
+          };
+
+          save();
+          renderSlots();
+          close();
         });
       });
+
+      document.body.appendChild(backdrop);
     }
 
-    
-    slotsEl.addEventListener('click', (e)=>{
+    slotsEl.addEventListener('click', (e) => {
       const add = e.target.closest('.add-btn');
-      if(add){ openModal(parseInt(add.dataset.index,10)); return; }
+      if (add) {
+        openModal(parseInt(add.dataset.index, 10));
+        return;
+      }
+
       const btn = e.target.closest('button');
-      if(btn && btn.dataset.action){ const idx = parseInt(btn.dataset.index,10); if(btn.dataset.action==='remove'){ plantsState[idx]=null; save(); renderSlots(); } else if(btn.dataset.action==='change'){ openModal(idx); } }
+      if (btn && btn.dataset.action) {
+        const idx = parseInt(btn.dataset.index, 10);
+
+        if (btn.dataset.action === 'remove') {
+          plantsState[idx] = null;
+          save();
+          renderSlots();
+        } 
+        else if (btn.dataset.action === 'change') {
+          openModal(idx);
+        }
+      }
     });
 
-    
     renderSlots();
   </script>
 </body>
-
 </html>
-
