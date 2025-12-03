@@ -29,7 +29,6 @@
     .slot-actions{ display:flex; gap:8px; margin-top:8px; }
     .btn-ghost{ background:transparent; border:1px solid rgba(0,0,0,0.06); padding:8px 10px; border-radius:8px; cursor:pointer; }
 
-    /* modal */
     .modal-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,0.25); display:flex; align-items:center; justify-content:center; }
     .modal{ background:var(--panel); padding:18px; border-radius:10px; width:540px; box-shadow:0 20px 50px rgba(0,0,0,0.2); }
     .options{ display:grid; grid-template-columns: repeat(2,1fr); gap:12px; }
@@ -55,11 +54,9 @@
   <main>
     <div class="page-title">Plants</div>
     <div class="slots" id="slots">
-      <!-- four slots will be rendered here -->
     </div>
   </main>
 
-  <!-- Modal template -->
   <template id="modalTpl">
     <div class="modal-backdrop" id="backdrop">
       <div class="modal">
@@ -102,7 +99,6 @@
   </template>
 
   <script>
-    // plant definitions (use search queries to fetch relevant photos)
     const PLANTS = {
       Fiddle: { name: 'Fiddle Leaf Plant', query: 'fiddle leaf fig' },
       Hole: { name: 'Hole Plant', query: 'monstera' },
@@ -142,7 +138,7 @@
       const tpl = document.getElementById('modalTpl');
       const node = tpl.content.cloneNode(true);
       const backdrop = node.querySelector('.modal-backdrop');
-      // before attaching, populate images from Unsplash search queries
+
       const opts = node.querySelectorAll('.option');
       opts.forEach(opt => {
         const key = opt.getAttribute('data-key');
@@ -184,3 +180,4 @@
 </body>
 
 </html>
+
