@@ -104,10 +104,10 @@
   <script>
     // plant definitions (use search queries to fetch relevant photos)
     const PLANTS = {
-      fiddle: { name: 'Fiddle Leaf Plant', query: 'fiddle leaf fig' },
-      succulent: { name: 'Hole Plant', query: 'monstera' },
-      herb: { name: 'Peace Lily', query: 'peace lily' },
-      fern: { name: 'Gold Palm', query: 'gold palm' }
+      Fiddle: { name: 'Fiddle Leaf Plant', query: 'fiddle leaf fig' },
+      Hole: { name: 'Hole Plant', query: 'monstera' },
+      Peace: { name: 'Peace Lily', query: 'peace lily' },
+      Gold: { name: 'Gold Palm', query: 'gold palm' }
     };
 
     const slotsEl = document.getElementById('slots');
@@ -156,7 +156,7 @@
       backdrop.querySelector('#closeBtn').addEventListener('click', close);
       backdrop.addEventListener('click', (e)=>{ if(e.target===backdrop) close(); });
 
-      // option click
+      
       const options = backdrop.querySelectorAll('.option');
       options.forEach(opt=>{
         opt.addEventListener('click', ()=>{
@@ -170,7 +170,7 @@
       });
     }
 
-    // click delegation
+    
     slotsEl.addEventListener('click', (e)=>{
       const add = e.target.closest('.add-btn');
       if(add){ openModal(parseInt(add.dataset.index,10)); return; }
@@ -178,8 +178,9 @@
       if(btn && btn.dataset.action){ const idx = parseInt(btn.dataset.index,10); if(btn.dataset.action==='remove'){ plantsState[idx]=null; save(); renderSlots(); } else if(btn.dataset.action==='change'){ openModal(idx); } }
     });
 
-    // initial render
+    
     renderSlots();
   </script>
 </body>
+
 </html>
