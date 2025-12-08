@@ -239,33 +239,22 @@
 			notifyChar.addEventListener('characteristicvaluechanged', (ev)=>{
 				try{
 					const value = new TextDecoder().decode(ev.target.value);
+					// Expect either a plain number (0-100) or something like 'MOIST:45'
 					const m = value.match(/(\d{1,3})/);
-					if (m) {
-    const val = Number(m[1]);
-    setMoisture(val);
-    sendToServer(val);
-}
-					async function sendToServer(value) {
-    fetch("https://yourserver.com/api/save_meting.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            vochtigheidPercentage: value,
-            potMacAdres: "AA:BB:CC:DD:EE:FF" 
-        })
-    });
-}
+					if(m) setMoisture(Number(m[1]));
 				}catch(e){ console.error('BLE notify parse error', e); }
 			});
 		}catch(e){ console.warn('No BLE notify characteristic available or subscribe failed', e); }
 	}
 
+	// USB: attempt to read from an IN endpoint in a loop and parse text lines
 	let usbReadLoopRunning = false;
 	async function startUsbReadLoop(device){
 		if(!device) return;
 		if(usbReadLoopRunning) return;
 		usbReadLoopRunning = true;
 		try{
+			// find an IN endpoint
 			const config = device.configuration;
 			let inEndpoint = null;
 			if(config && config.interfaces){
@@ -282,6 +271,7 @@
 
 			while(device && device.opened){
 				if(inEndpoint==null){
+					// nothing to read from
 					await new Promise(r=>setTimeout(r,1000));
 					continue;
 				}
@@ -293,6 +283,7 @@
 						if(m) setMoisture(Number(m[1]));
 					}
 				}catch(e){
+					// if device disconnected or endpoint error, break
 					console.warn('USB transferIn error', e);
 					break;
 				}
@@ -302,6 +293,7 @@
 	}
 
 
+	// detect and set usb interface and endpoints for IN/OUT
 	function detectUsbEndpoints(device){
 		usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null;
 		const config = device.configuration;
@@ -320,13 +312,16 @@
 		}
 	}
 
+	// (Water command removed - USB write UI removed per request)
 
+	// Active plant rendering: show first saved plant slot if present, otherwise placeholder
 	function renderActivePlant(){
 		const wrap = document.getElementById('activePlantContent');
 		try{
 			const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
 			const plants = (state || []).filter(p => p);
 			if(plants.length){
+				// render all active plants as small cards
 				let html = '<div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">';
 				for(const p of plants){
 					const nameEsc = p.name.replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -357,6 +352,7 @@
 		}
 	}
 
+	// Try to automatically reconnect to a previously-authorized USB micro:bit on page load
 	async function autoReconnectUSB(){
 		if(!navigator.usb) return;
 		try{
@@ -374,11 +370,13 @@
 						const iface = (usbDevice.configuration && usbDevice.configuration.interfaces && usbDevice.configuration.interfaces[0]);
 						if(iface){ await usbDevice.claimInterface(iface.interfaceNumber); }
 					}catch(e){ /* ignore interface claim errors */ }
+									// detect endpoints, start read loop and update UI
 									detectUsbEndpoints(usbDevice);
 									try{ startUsbReadLoop(usbDevice); }catch(e){}
 									connStatus.textContent = 'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
 									connectBtn.textContent = 'Connected (USB)';
 									connectBtn.disabled = true;
+									// ensure disconnect listener mounted
 					navigator.usb.addEventListener('disconnect', (ev)=>{
 						try{ if(ev.device && ev.device === usbDevice){ connStatus.textContent = 'USB device disconnected'; connectBtn.textContent = 'Connect'; connectBtn.disabled = false; usbDevice = null; usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null; } }catch(e){}
 					});
@@ -388,10 +386,12 @@
 				}
 			}
 		}catch(e){ console.error('Error checking usb devices', e); }
-	
+	}
+
+	// initial render
 	renderActivePlant();
+	// attempt auto-reconnect (if the browser remembers the granted device permission)
 	autoReconnectUSB();
 	</script>
 </body>
 </html>
-
