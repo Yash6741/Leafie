@@ -384,7 +384,6 @@
 								<div class="tag" style="font-size:12px;padding:4px 8px;">${nameEsc}</div>
 								<div style="font-weight:700;margin-top:8px;">${nameEsc}</div>
 								<div class="plant-desc" style="margin-top:6px;">Your personal plant companion.</div>
-								<div style="margin-top:8px;"><button class="big-btn" onclick="openImagePickerForPlant(${i})">Change Image</button></div>
 							</div>
 						</div>`;
 				}
@@ -423,42 +422,7 @@
 		return 'data:image/svg+xml;base64,' + btoa(svg);
 	}
 
-	// Open the hidden file input and attach the plant index to it
-	function openImagePickerForPlant(index){
-		let input = document.getElementById('plantImageInput');
-		if(!input){
-			input = document.createElement('input');
-			input.type = 'file';
-			input.accept = 'image/*';
-			input.id = 'plantImageInput';
-			input.style.display = 'none';
-			input.addEventListener('change', async (ev)=>{
-				const file = ev.target.files && ev.target.files[0];
-				if(!file) return;
-				const reader = new FileReader();
-				reader.onload = function(){
-					const dataUrl = reader.result;
-					try{ setPlantImage(input._plantIndex, dataUrl); }catch(e){ console.error(e); }
-					input.value = '';
-				};
-				reader.readAsDataURL(file);
-			});
-			document.body.appendChild(input);
-		}
-		input._plantIndex = index;
-		input.click();
-	}
-
-	// Save the provided data URL into the specified plant slot and re-render
-	function setPlantImage(index, dataUrl){
-		try{
-			const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
-			state[index] = state[index] || {};
-			state[index].img = dataUrl;
-			localStorage.setItem('leafie.plants', JSON.stringify(state));
-			renderActivePlant();
-		}catch(e){ console.error('setPlantImage error', e); }
-	}
+	// Manual image upload removed: images are discovered automatically only
 
 	// Check if an image URL loads successfully
 	function checkImageExists(url, timeout=4000){
