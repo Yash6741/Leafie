@@ -56,7 +56,12 @@
 		.plant-name{ font-size:22px; font-weight:800; margin-top:8px; }
 		.plant-desc{ color:#2b5b84; margin-top:12px; }
 
-		/* Reservoir styles removed per user request */
+		/* Reservoir */
+		.reservoir{ display:flex; flex-direction:column; gap:12px; }
+		.progress-wrap{ background:var(--panel); padding:18px; border-radius:10px; box-shadow:var(--shadow); }
+		.bar{ height:28px; background:var(--muted); border-radius:14px; position:relative; overflow:hidden; }
+		.bar-fill{ position:absolute; left:0; top:0; bottom:0; width:0%; background:linear-gradient(90deg,var(--green), #4aa85a); border-radius:14px; transition:width .4s ease; }
+		.bar-label{ position:relative; z-index:1; height:28px; display:flex; align-items:center; justify-content:center; color:#10201b; font-weight:700; }
 
 		/* Responsive */
 		@media (max-width:900px){ .grid{ grid-template-columns: 1fr; } .sidebar{display:none;} body{padding:12px;} }
@@ -101,7 +106,16 @@
 				</div>
 			</div>
 
-			<!-- Water reservoir removed per user request -->
+			<!-- Reservoir full width below -->
+			<div style="grid-column:1 / -1;">
+				<div class="card">
+					<h3>Water Reservoir</h3>
+					<div class="progress-wrap">
+						<div class="bar"><div id="barFill" class="bar-fill"></div><div id="barLabel" class="bar-label">N/A</div></div>
+						<div style="text-align:center; margin-top:10px; color:#2b6b8a;">Connect device to see data</div>
+					</div>
+				</div>
+			</div>
 
 		</div>
 	</main>
@@ -229,16 +243,18 @@
 		}
 	});
 
-	// Moisture value handling (UI removed). Store the latest value for potential future use.
-	let currentMoisture = null;
+	// Moisture UI update
+	const barFill = document.getElementById('barFill');
+	const barLabel = document.getElementById('barLabel');
 	function setMoisture(percent){
 		if(percent == null || isNaN(percent)){
-			currentMoisture = null;
+			barFill.style.width = '0%';
+			barLabel.textContent = 'N/A';
 			return;
 		}
 		percent = Math.max(0, Math.min(100, Math.round(percent)));
-		currentMoisture = percent;
-		// UI removed: no DOM updates here.
+		barFill.style.width = percent + '%';
+		barLabel.textContent = percent + '%';
 	}
 
 	// BLE: subscribe to NUS TX (device->client) characteristic for incoming sensor values
@@ -352,98 +368,7 @@
 		const wrap = document.getElementById('activePlantContent');
 		try{
 			const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
-			let plants = (state || []).filter(p => p);
-
-			// Remove any pothos/hole-plant entries per user request
-			try{
-				const removeRegex = /\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/i;
-				const filteredState = [];
-				let removed = false;
-				for(let i=0;i<state.length;i++){
-					const p = state[i];
-					const name = (p && p.name) ? p.name.toString() : '';
-					if(removeRegex.test(name)){
-						removed = true;
-						continue; // skip this entry (remove it)
-					}
-					filteredState.push(p);
-				}
-				if(removed){
-					localStorage.setItem('leafie.plants', JSON.stringify(filteredState));
-					plants = (filteredState || []).filter(p => p);
-				}
-			}catch(e){ console.warn('Error removing pothos entries', e); }
-
-			// If there are multiple pothos/hole-plant entries, replace the second occurrence
-			try{
-				const pothosIndexes = [];
-				for(let i=0;i<plants.length;i++){
-					const name = (plants[i].name || '').toString().toLowerCase();
-					if(/\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/.test(name)){
-						pothosIndexes.push(i);
-					}
-				}
-				if(pothosIndexes.length > 1){
-					// target only the second occurrence (index 1)
-					const idx = pothosIndexes[1];
-					if(idx != null){
-						plants[idx].name = 'Gold Palm';
-						state[idx] = state[idx] || {};
-						state[idx].name = 'Gold Palm';
-						localStorage.setItem('leafie.plants', JSON.stringify(state));
-					}
-				}
-			}catch(e){ console.warn('Error replacing duplicate pothos entry', e); }
-
-			// If a pothos/hole plant exists and has no image, assign the user-provided image URL.
-			try{
-				const HOLE_PLANT_IMG = 'https://florastore.com/cdn/shop/files/1711701_Productimage_02_SQ_grande.jpg?v=1764599206';
-				for(let i=0;i<plants.length;i++){
-					const name = (plants[i].name||'').toString().toLowerCase();
-					if(/\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/.test(name)){
-						if(!plants[i].img){
-							// check the image URL is reachable before persisting
-							(async function(idx){
-								try{
-									const ok = await checkImageExists(HOLE_PLANT_IMG);
-									if(ok){
-										state[idx] = state[idx] || {};
-										state[idx].img = HOLE_PLANT_IMG;
-										localStorage.setItem('leafie.plants', JSON.stringify(state));
-										// update in-memory plants so later rendering uses it
-										plants[idx].img = HOLE_PLANT_IMG;
-									}
-								}catch(e){ console.warn('Failed to set hole plant image', e); }
-							})(i);
-						}
-						break; // assign only for the first matching pothos instance
-					}
-				}
-			}catch(e){ console.warn('Error assigning default hole plant image', e); }
-
-			// If a peace lily exists and has no image, assign the user-provided peace lily image URL.
-			try{
-				const PEACE_LILY_IMG = 'https://www.mydomaine.com/thmb/N3StDx3PyGbF0Pwafv-P9-qiNZU=/900x0/filters:no_upscale():strip_icc()/1566417254329_20190821-1566417255317-b9314f1d9f7a4668a466c5ffb1913a8f.jpg';
-				for(let i=0;i<plants.length;i++){
-					const name = (plants[i].name||'').toString().toLowerCase();
-					if(/\b(peace ?lily|spathiphyllum)\b/.test(name)){
-						if(!plants[i].img){
-							(async function(idx){
-								try{
-									const ok = await checkImageExists(PEACE_LILY_IMG);
-									if(ok){
-										state[idx] = state[idx] || {};
-										state[idx].img = PEACE_LILY_IMG;
-										localStorage.setItem('leafie.plants', JSON.stringify(state));
-										plants[idx].img = PEACE_LILY_IMG;
-									}
-								}catch(e){ console.warn('Failed to set peace lily image', e); }
-							})(i);
-						}
-						break; // assign only for the first matching peace lily instance
-					}
-				}
-			}catch(e){ console.warn('Error assigning default peace lily image', e); }
+			const plants = (state || []).filter(p => p);
 			if(plants.length){
 				// render all active plants as small cards (show image if present, fallback to placeholder)
 				let html = '<div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">';
@@ -535,12 +460,10 @@
 			const slug = slugify(name);
 			const candidates = [];
 			if(slug){
-				candidates.push('./images/' + slug + '.svg');
 				candidates.push('./images/' + slug + '.png');
 				candidates.push('./images/' + slug + '.jpg');
 				candidates.push('./images/' + slug + '.jpeg');
 				candidates.push('./images/' + slug + '.webp');
-				candidates.push('./' + slug + '.svg');
 				candidates.push('./' + slug + '.png');
 				candidates.push('./' + slug + '.jpg');
 				candidates.push('./' + slug + '.jpeg');
@@ -549,13 +472,10 @@
 			// also try some well-known common names for the specific plants the user mentioned
 			const lower = (name||'').toLowerCase();
 			if(/peace ?lily|spathiphyllum/.test(lower)){
-				candidates.push('./images/peace-lily.svg','./images/peace-lily.jpg','./images/peace-lily.png','./images/peace-lily.webp');
+				candidates.push('./images/peace-lily.jpg','./images/peace-lily.png','./images/peace-lily.webp');
 			}
 			if(/hole|pothos|devil's ivy|epipremnum|golden pothos/.test(lower)){
-				candidates.push('./images/pothos.svg','./images/pothos.jpg','./images/pothos.png','./images/pothos.webp');
-			}
-			if(/fiddle|fiddle leaf|fiddle-leaf|fiddle leaf fig|fiddle-leaf-fig|ficus lyrata/.test(lower)){
-				candidates.push('./images/fiddle-leaf-fig.svg','./images/fiddle-leaf-fig.png','./images/fiddle-leaf-fig.jpg');
+				candidates.push('./images/pothos.jpg','./images/pothos.png','./images/pothos.webp');
 			}
 			// de-duplicate candidates
 			const seen = new Set();
