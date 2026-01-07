@@ -481,10 +481,12 @@
 			const slug = slugify(name);
 			const candidates = [];
 			if(slug){
+				candidates.push('./images/' + slug + '.svg');
 				candidates.push('./images/' + slug + '.png');
 				candidates.push('./images/' + slug + '.jpg');
 				candidates.push('./images/' + slug + '.jpeg');
 				candidates.push('./images/' + slug + '.webp');
+				candidates.push('./' + slug + '.svg');
 				candidates.push('./' + slug + '.png');
 				candidates.push('./' + slug + '.jpg');
 				candidates.push('./' + slug + '.jpeg');
@@ -493,10 +495,13 @@
 			// also try some well-known common names for the specific plants the user mentioned
 			const lower = (name||'').toLowerCase();
 			if(/peace ?lily|spathiphyllum/.test(lower)){
-				candidates.push('./images/peace-lily.jpg','./images/peace-lily.png','./images/peace-lily.webp');
+				candidates.push('./images/peace-lily.svg','./images/peace-lily.jpg','./images/peace-lily.png','./images/peace-lily.webp');
 			}
 			if(/hole|pothos|devil's ivy|epipremnum|golden pothos/.test(lower)){
-				candidates.push('./images/pothos.jpg','./images/pothos.png','./images/pothos.webp');
+				candidates.push('./images/pothos.svg','./images/pothos.jpg','./images/pothos.png','./images/pothos.webp');
+			}
+			if(/fiddle|fiddle leaf|fiddle-leaf|fiddle leaf fig|fiddle-leaf-fig|ficus lyrata/.test(lower)){
+				candidates.push('./images/fiddle-leaf-fig.svg','./images/fiddle-leaf-fig.png','./images/fiddle-leaf-fig.jpg');
 			}
 			// de-duplicate candidates
 			const seen = new Set();
