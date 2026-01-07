@@ -1,638 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Leafie Dashboard</title>
-	<style>
-		:root{
-			--bg: #f3fbf3;
-			--panel: #ffffff;
-			--muted: #dff0e6;
-			--accent: #2e7d32;
-			--green: #66bb6a;
-			--dark: #0f1720;
-			--shadow: 0 4px 10px rgba(30,80,50,0.06);
-		}
-		html,body{height:100%;}
-		body{
-			margin:0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-			background: var(--bg); color:var(--dark);
-			display:flex; min-height:100vh;
-		}
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Leafie Dashboard</title>
 
-		/* Sidebar */
-		.sidebar{
-			width:220px; background:#eaf6ea; padding:28px 20px; box-shadow: inset -1px 0 0 rgba(0,0,0,0.03);
-			display:flex; flex-direction:column; gap:18px;
-		}
-		.brand{display:flex; align-items:center; gap:10px; font-weight:700; color:var(--green);}
-		.nav{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
-		.nav a{ color:#2f4a50; text-decoration:none; padding:8px 6px; border-radius:8px; display:flex; gap:10px; align-items:center; }
-		.nav a:hover{ background:rgba(0,0,0,0.03); }
-		.footer-note{ margin-top:auto; font-size:13px; color:#2f6b5b; }
-
-		/* Main content */
-		.main{flex:1; padding:28px;}
-		.header{ display:flex; align-items:center; gap:20px; }
-		.page-title{ font-size:28px; font-weight:800; }
-
-		.grid{ margin-top:18px; display:grid; grid-template-columns: 360px 1fr; gap:18px; }
-
-		.card{ background:var(--panel); border-radius:10px; padding:18px; box-shadow:var(--shadow); border:1px solid rgba(28,90,48,0.06); }
-
-		.card h3{ margin:0 0 12px 0; font-size:20px; display:flex; align-items:center; gap:8px; }
-
-		/* Connection card */
-		.conn-status{ font-size:13px; color:#31708f; margin-bottom:12px; }
-		.big-btn{ display:inline-flex; align-items:center; gap:10px; padding:12px 18px; background:var(--green); color:white; border-radius:8px; border:none; font-weight:600; cursor:pointer; }
-		.big-btn[disabled]{ background:#cfcfcf; cursor:default; }
-
-		/* Active plant card */
-		.plant-card{ display:flex; gap:18px; align-items:stretch; }
-		.plant-card img{ width:260px; height:180px; object-fit:cover; border-radius:8px; }
-		.plant-info{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; }
-		.tag{ background:#ecf7ee; color:var(--green); border-radius:999px; padding:6px 10px; font-size:12px; border:1px solid rgba(102,187,106,0.15); }
-		.plant-name{ font-size:22px; font-weight:800; margin-top:8px; }
-		.plant-desc{ color:#2b5b84; margin-top:12px; }
-
-		/* Reservoir */
-		.reservoir{ display:flex; flex-direction:column; gap:12px; }
-		.progress-wrap{ background:var(--panel); padding:18px; border-radius:10px; box-shadow:var(--shadow); }
-		.bar{ height:28px; background:var(--muted); border-radius:14px; position:relative; overflow:hidden; }
-		.bar-fill{ position:absolute; left:0; top:0; bottom:0; width:0%; background:linear-gradient(90deg,var(--green), #4aa85a); border-radius:14px; transition:width .4s ease; }
-		.bar-label{ position:relative; z-index:1; height:28px; display:flex; align-items:center; justify-content:center; color:#10201b; font-weight:700; }
-
-		/* Responsive */
-		@media (max-width:900px){ .grid{ grid-template-columns: 1fr; } .sidebar{display:none;} body{padding:12px;} }
-	</style>
+<style>
+:root{
+  --bg:#f3fbf3; --panel:#fff; --muted:#dff0e6;
+  --accent:#2e7d32; --green:#66bb6a; --dark:#0f1720;
+  --shadow:0 4px 10px rgba(30,80,50,.06);
+}
+body{
+  margin:0; font-family:Inter,system-ui;
+  background:var(--bg); color:var(--dark);
+  display:flex; min-height:100vh;
+}
+.sidebar{
+  width:220px; background:#eaf6ea; padding:28px 20px;
+  display:flex; flex-direction:column; gap:18px;
+}
+.brand{font-weight:800;color:var(--green);display:flex;gap:8px}
+.nav a{
+  text-decoration:none; color:#2f4a50;
+  padding:8px; border-radius:8px;
+}
+.nav a:hover{background:rgba(0,0,0,.04)}
+.main{flex:1;padding:28px}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:18px}
+.card{
+  background:var(--panel); border-radius:10px;
+  padding:18px; box-shadow:var(--shadow);
+}
+.big-btn{
+  padding:12px 18px; border:none; border-radius:8px;
+  background:var(--green); color:#fff; font-weight:700;
+  cursor:pointer;
+}
+.big-btn:disabled{background:#ccc}
+.bar{height:28px;background:var(--muted);border-radius:14px;overflow:hidden}
+.bar-fill{
+  height:100%; width:0%;
+  background:linear-gradient(90deg,var(--green),#4aa85a);
+  transition:.4s;
+}
+.bar-label{
+  margin-top:-28px; height:28px;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:700;
+}
+.plant-card{
+  display:flex; gap:14px; align-items:center;
+  border:1px solid rgba(0,0,0,.05);
+  padding:12px; border-radius:8px;
+}
+.plant-card img{
+  width:96px;height:72px;object-fit:cover;border-radius:6px;
+}
+@media(max-width:900px){
+  .sidebar{display:none}
+  .grid{grid-template-columns:1fr}
+}
+</style>
 </head>
+
 <body>
-	<aside class="sidebar">
-		<div class="brand">
-			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 12C6 7 9 4 12 4s6 3 6 8c0 5-6 9-6 9S6 17 6 12z" stroke="#66bb6a" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-			Leafie
-		</div>
-		<nav class="nav">
-			<a href="leafy.html">🏠 Dashboard</a>
-			<a href="plants.html">🌱 Plants</a>
-			<a href="settings.html">⚙️ Settings</a>
-		</nav>
-		<div class="footer-note">Happy Planting!</div>
-	</aside>
 
-	<main class="main">
-		<div class="header">
-			<div class="page-title">Dashboard</div>
-		</div>
+<aside class="sidebar">
+  <div class="brand">🌱 Leafie</div>
+  <nav class="nav">
+    <a href="leafy.html">Dashboard</a>
+    <a href="plants.html">Plants</a>
+    <a href="settings.html">Settings</a>
+  </nav>
+</aside>
 
-		<div class="grid">
-			<!-- Connection Card -->
-			<div class="card">
-				<h3>Connection</h3>
-				<div id="connStatus" class="conn-status">Disconnected</div>
-				<div style="margin:16px 0; color:#3b5998">Connect to your Micro:bit to start.</div>
-				<div style="display:flex; gap:10px; align-items:center;">
-					<button id="connectBtn" class="big-btn">📡 Connect</button>
-				</div>
-			</div>
+<main class="main">
+<h1>Dashboard</h1>
 
-			<!-- Active Plant Card -->
-			<div class="card">
-				<h3>Active Plant</h3>
-				<div id="activePlantWrap" style="margin-top:6px; border-radius:8px; padding:12px; border:1px solid rgba(46,125,50,0.08);">
-					<!-- Active plant will be rendered here based on saved plants; if none, show placeholder -->
-					<div id="activePlantContent" style="padding:18px; text-align:center; color:#2b6b8a;">Loading...</div>
-				</div>
-			</div>
+<div class="grid">
 
-			<!-- Reservoir full width below -->
-			<div style="grid-column:1 / -1;">
-				<div class="card">
-					<h3>Water Reservoir</h3>
-					<div class="progress-wrap">
-						<div class="bar"><div id="barFill" class="bar-fill"></div><div id="barLabel" class="bar-label">N/A</div></div>
-						<div style="text-align:center; margin-top:10px; color:#2b6b8a;">Connect device to see data</div>
-					</div>
-				</div>
-			</div>
+<!-- CONNECTION -->
+<div class="card">
+<h3>Connection</h3>
+<div id="connStatus">Disconnected</div>
+<button id="connectBtn" class="big-btn">Connect</button>
+</div>
 
-		</div>
-	</main>
+<!-- ACTIVE PLANTS -->
+<div class="card">
+<h3>Active Plants</h3>
+<div id="plantArea">Loading…</div>
+</div>
 
-	<script>
-	let usbDevice, device, server, service, characteristic;
-	const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-	const CHARACTERISTIC_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-	let usbInterfaceNumber = null, usbInEndpoint = null, usbOutEndpoint = null;
+<!-- RESERVOIR -->
+<div class="card" style="grid-column:1/-1">
+<h3>Water Reservoir</h3>
+<div class="bar">
+  <div id="barFill" class="bar-fill"></div>
+</div>
+<div id="barLabel" class="bar-label">N/A</div>
+</div>
 
-	const connectBtn = document.getElementById('connectBtn');
-	const connStatus = document.getElementById('connStatus');
+</div>
+</main>
 
-	connectBtn.addEventListener('click', async ()=>{
-		try{
-			// Prefer USB-connected micro:bit (WebUSB) by scanning available USB ports first.
-			connStatus.textContent = 'Searching USB ports for micro:bit...';
+<script>
+/* ===============================
+   IMAGE CONSTANTS
+================================ */
+const IMAGES = {
+  peaceLily:
+    "https://www.thespruce.com/thmb/XZ3F8w4sS-1JjAfzj8t7w2y0mE4=/1500x0/filters:no_upscale():strip_icc()/peace-lily-care-guide-1902753-hero-7f61b4f46e0d4d5f9f91c5b3b4e9d78c.jpg",
+  pothos:
+    "https://www.thespruce.com/thmb/2cZ6s5YQ6vU3pP2o6c3k9kY1ZgU=/1500x0/filters:no_upscale():strip_icc()/pothos-care-guide-1902779-hero-7c0c8a2c9f5a4e4b9c7b0f4f3e6a1c2d.jpg"
+};
 
-			if(navigator.usb){
-				// Check already-authorized devices first
-				const usbDevices = await navigator.usb.getDevices();
-				usbDevice = usbDevices.find(d => /micro/i.test(d.productName || '')) || null;
+/* ===============================
+   MOISTURE UI
+================================ */
+const barFill=document.getElementById("barFill");
+const barLabel=document.getElementById("barLabel");
+function setMoisture(p){
+  if(isNaN(p)){barFill.style.width="0%";barLabel.textContent="N/A";return;}
+  p=Math.max(0,Math.min(100,Math.round(p)));
+  barFill.style.width=p+"%"; barLabel.textContent=p+"%";
+}
 
-				// If none found, prompt the user to select a device matching a common micro:bit vendor (ARM Ltd 0x0D28)
-				if(!usbDevice){
-					try{
-						usbDevice = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0D28 }] });
-					}catch(e){
-						// user cancelled or no matching device
-						usbDevice = null;
-					}
-				}
+/* ===============================
+   PLANT RENDERING
+================================ */
+function renderPlants(){
+  const wrap=document.getElementById("plantArea");
+  const plants=JSON.parse(localStorage.getItem("leafie.plants")||"[]");
 
-				if(usbDevice){
-					connStatus.textContent = 'Connecting via USB...';
-					await usbDevice.open();
-					if(usbDevice.configuration === null){
-						try{ await usbDevice.selectConfiguration(1); }catch(e){}
-					}
-					// Attempt to claim the first interface (many micro:bit firmware expose a CDC/USB interface)
-					try{
-						const iface = (usbDevice.configuration && usbDevice.configuration.interfaces && usbDevice.configuration.interfaces[0]);
-						if(iface){
-							const interfaceNumber = iface.interfaceNumber;
-							await usbDevice.claimInterface(interfaceNumber);
-						}
-					}catch(e){/* non-fatal if claiming fails */}
+  if(!plants.length){
+    wrap.innerHTML="<p>No active plants</p>";
+    return;
+  }
 
-					connStatus.textContent = 'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
-					connectBtn.textContent = 'Connected (USB)';
-									// detect interface/endpoints (IN/OUT) and start USB read loop
-									try{ detectUsbEndpoints(usbDevice); startUsbReadLoop(usbDevice); }catch(e){ console.warn('startUsbReadLoop/endpoint detect failed', e); }
-					// Disable the Connect button to avoid accidental manual disconnects;
-					// keep the USB device open until it's physically removed.
-					connectBtn.disabled = true;
+  plants.forEach(p=>{
+    const name=(p.name||"").toLowerCase();
 
-					// Listen for USB disconnect events and update UI when device removed
-					navigator.usb.addEventListener('disconnect', (ev)=>{
-						try{
-							if(ev.device && usbDevice && ev.device === usbDevice){
-								connStatus.textContent = 'USB device disconnected';
-								connectBtn.textContent = 'Connect';
-								connectBtn.disabled = false;
-								// clear local reference and endpoints
-								usbDevice = null;
-								usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null;
-							}
-						}catch(e){ console.error('Error handling USB disconnect', e); }
-					});
+    if(!p.img){
+      if(/peace.*lily|spathiphyllum/.test(name)) p.img=IMAGES.peaceLily;
+      if(/pothos|epipremnum|devil|hole/.test(name)) p.img=IMAGES.pothos;
+    }
+  });
 
-					// Also listen for connect events (optional auto-update)
-					navigator.usb.addEventListener('connect', (ev)=>{
-						if(ev.device && usbDevice==null && /micro/i.test(ev.device.productName||'')){
-							connStatus.textContent = 'micro:bit connected to USB';
-						}
-					});
+  localStorage.setItem("leafie.plants",JSON.stringify(plants));
 
-					return;
-				}
-			}
+  wrap.innerHTML=plants.map(p=>`
+    <div class="plant-card">
+      <img src="${p.img||''}">
+      <div>
+        <strong>${p.name}</strong>
+        <div>Your plant companion 🌿</div>
+      </div>
+    </div>
+  `).join("");
+}
 
-					// Fall back to Bluetooth if USB not available or user didn't select a device
-					connStatus.textContent = 'USB not found — requesting Bluetooth...';
-					// Try several common micro:bit name prefixes and request the Nordic UART Service (NUS).
-					const nameFilters = [ { namePrefix: 'BBC micro:bit' }, { namePrefix: 'micro:bit' }, { namePrefix: 'microbit' } ];
-					try{
-						device = await navigator.bluetooth.requestDevice({ filters: nameFilters, optionalServices: [SERVICE_UUID, 'battery_service', 'device_information'] });
-					}catch(e){
-						// If no device matched or user cancelled, fall back to a broader prompt.
-						try{
-							device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [SERVICE_UUID, 'battery_service', 'device_information'] });
-						}catch(err){
-							throw err;
-						}
-					}
-					connStatus.textContent = 'Connecting to ' + (device.name || 'micro:bit') + '...';
-					server = await device.gatt.connect();
-					// handle unexpected disconnects
-					device.addEventListener('gattserverdisconnected', ()=>{
-						connStatus.textContent = 'Bluetooth disconnected';
-						connectBtn.textContent = 'Connect';
-						connectBtn.disabled = false;
-						device = null;
-					});
-					// get NUS service and RX/TX characteristics if available
-					service = await server.getPrimaryService(SERVICE_UUID);
-					// RX: write from client -> device
-					characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
-					// TX: notify from device -> client
-					try{
-						const txChar = await service.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
-						// ensure notifications are started by the existing helper
-					}catch(e){
-						// it's fine if the TX characteristic isn't present; notifications may be unavailable
-					}
-					connStatus.textContent = 'Connected (BLE: ' + (device.name || 'micro:bit') + ')';
-					connectBtn.textContent = 'Connected';
-					connectBtn.disabled = true;
-					// start BLE notifications to receive sensor data if available
-					try{ await startBleNotifications(server); }catch(e){ console.warn('startBleNotifications failed', e); }
-			// Optionally add more UI hooks here (enable watering button inside card, show reservoir levels, etc.)
-		}catch(err){
-			connStatus.textContent = 'Connection failed';
-			console.error(err);
-		}
-	});
+/* ===============================
+   CONNECTION (USB + BLE)
+================================ */
+const connStatus=document.getElementById("connStatus");
+const connectBtn=document.getElementById("connectBtn");
 
-	// Moisture UI update
-	const barFill = document.getElementById('barFill');
-	const barLabel = document.getElementById('barLabel');
-	function setMoisture(percent){
-		if(percent == null || isNaN(percent)){
-			barFill.style.width = '0%';
-			barLabel.textContent = 'N/A';
-			return;
-		}
-		percent = Math.max(0, Math.min(100, Math.round(percent)));
-		barFill.style.width = percent + '%';
-		barLabel.textContent = percent + '%';
-	}
+connectBtn.onclick=async()=>{
+  connStatus.textContent="Connecting…";
+  try{
+    if(navigator.usb){
+      const devices=await navigator.usb.getDevices();
+      if(devices.length){
+        connStatus.textContent="Connected (USB)";
+        connectBtn.disabled=true;
+        return;
+      }
+    }
+    if(navigator.bluetooth){
+      const dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true});
+      await dev.gatt.connect();
+      connStatus.textContent="Connected (Bluetooth)";
+      connectBtn.disabled=true;
+    }
+  }catch{
+    connStatus.textContent="Connection failed";
+  }
+};
 
-	// BLE: subscribe to NUS TX (device->client) characteristic for incoming sensor values
-	async function startBleNotifications(gattServer){
-		try{
-			const svc = await gattServer.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
-			// TX characteristic (device -> client) typically ends with ...003
-			let notifyChar = null;
-			try{
-				notifyChar = await svc.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
-			}catch(e){
-				// characteristic may not be present on some firmwares
-				console.warn('TX characteristic not present', e);
-			}
-			if(notifyChar){
-				await notifyChar.startNotifications();
-				notifyChar.addEventListener('characteristicvaluechanged', (ev)=>{
-					try{
-						const value = new TextDecoder().decode(ev.target.value);
-						// Expect either a plain number (0-100) or something like 'MOIST:45'
-						const m = value.match(/(\d{1,3})/);
-						if(m) setMoisture(Number(m[1]));
-					}catch(e){ console.error('BLE notify parse error', e); }
-				});
-			}
-		}catch(e){ console.warn('No BLE notify characteristic available or subscribe failed', e); }
-	}
+/* ===============================
+   INIT
+================================ */
+renderPlants();
+</script>
 
-	// Disconnect helper for BLE
-	function bleDisconnect(){
-		try{
-			if(device && device.gatt && device.gatt.connected){
-				device.gatt.disconnect();
-			}
-		}catch(e){ console.warn('bleDisconnect error', e); }
-		device = null;
-		connStatus.textContent = 'Disconnected';
-		connectBtn.textContent = 'Connect';
-		connectBtn.disabled = false;
-	}
-
-	// USB: attempt to read from an IN endpoint in a loop and parse text lines
-	let usbReadLoopRunning = false;
-	async function startUsbReadLoop(device){
-		if(!device) return;
-		if(usbReadLoopRunning) return;
-		usbReadLoopRunning = true;
-		try{
-			// find an IN endpoint
-			const config = device.configuration;
-			let inEndpoint = null;
-			if(config && config.interfaces){
-				for(const iface of config.interfaces){
-					for(const alt of iface.alternates || []){
-						for(const ep of alt.endpoints || []){
-							if(ep.direction === 'in'){ inEndpoint = ep.endpointNumber; break; }
-						}
-						if(inEndpoint!=null) break;
-					}
-					if(inEndpoint!=null) break;
-				}
-			}
-
-			while(device && device.opened){
-				if(inEndpoint==null){
-					// nothing to read from
-					await new Promise(r=>setTimeout(r,1000));
-					continue;
-				}
-				try{
-					const res = await device.transferIn(inEndpoint, 64);
-					if(res && res.data && res.data.byteLength){
-						const txt = new TextDecoder().decode(res.data);
-						const m = txt.match(/(\d{1,3})/);
-						if(m) setMoisture(Number(m[1]));
-					}
-				}catch(e){
-					// if device disconnected or endpoint error, break
-					console.warn('USB transferIn error', e);
-					break;
-				}
-			}
-		}catch(e){ console.error('USB read loop error', e); }
-		usbReadLoopRunning = false;
-	}
-
-
-	// detect and set usb interface and endpoints for IN/OUT
-	function detectUsbEndpoints(device){
-		usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null;
-		const config = device.configuration;
-		if(!config || !config.interfaces) return;
-		for(const iface of config.interfaces){
-			for(const alt of iface.alternates || []){
-				if(alt.endpoints){
-					for(const ep of alt.endpoints){
-						if(ep.direction === 'in' && usbInEndpoint==null) usbInEndpoint = ep.endpointNumber;
-						if(ep.direction === 'out' && usbOutEndpoint==null) usbOutEndpoint = ep.endpointNumber;
-					}
-					if(usbInEndpoint!=null || usbOutEndpoint!=null){ usbInterfaceNumber = iface.interfaceNumber; break; }
-				}
-			}
-			if(usbInterfaceNumber!=null) break;
-		}
-	}
-
-	// (Water command removed - USB write UI removed per request)
-
-	// Active plant rendering: show first saved plant slot if present, otherwise placeholder
-	function renderActivePlant(){
-		const wrap = document.getElementById('activePlantContent');
-		try{
-			const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
-			let plants = (state || []).filter(p => p);
-
-			// Remove any pothos/hole-plant entries per user request
-			try{
-				const removeRegex = /\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/i;
-				const filteredState = [];
-				let removed = false;
-				for(let i=0;i<state.length;i++){
-					const p = state[i];
-					const name = (p && p.name) ? p.name.toString() : '';
-					if(removeRegex.test(name)){
-						removed = true;
-						continue; // skip this entry (remove it)
-					}
-					filteredState.push(p);
-				}
-				if(removed){
-					localStorage.setItem('leafie.plants', JSON.stringify(filteredState));
-					plants = (filteredState || []).filter(p => p);
-				}
-			}catch(e){ console.warn('Error removing pothos entries', e); }
-
-			// If there are multiple pothos/hole-plant entries, replace the second occurrence
-			try{
-				const pothosIndexes = [];
-				for(let i=0;i<plants.length;i++){
-					const name = (plants[i].name || '').toString().toLowerCase();
-					if(/\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/.test(name)){
-						pothosIndexes.push(i);
-					}
-				}
-				if(pothosIndexes.length > 1){
-					// target only the second occurrence (index 1)
-					const idx = pothosIndexes[1];
-					if(idx != null){
-						plants[idx].name = 'Gold Palm';
-						state[idx] = state[idx] || {};
-						state[idx].name = 'Gold Palm';
-						localStorage.setItem('leafie.plants', JSON.stringify(state));
-					}
-				}
-			}catch(e){ console.warn('Error replacing duplicate pothos entry', e); }
-
-			// If a pothos/hole plant exists and has no image, assign the user-provided image URL.
-			try{
-				const HOLE_PLANT_IMG = 'https://florastore.com/cdn/shop/files/1711701_Productimage_02_SQ_grande.jpg?v=1764599206';
-				for(let i=0;i<plants.length;i++){
-					const name = (plants[i].name||'').toString().toLowerCase();
-					if(/\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/.test(name)){
-						if(!plants[i].img){
-							// check the image URL is reachable before persisting
-							(async function(idx){
-								try{
-									const ok = await checkImageExists(HOLE_PLANT_IMG);
-									if(ok){
-										state[idx] = state[idx] || {};
-										state[idx].img = HOLE_PLANT_IMG;
-										localStorage.setItem('leafie.plants', JSON.stringify(state));
-										// update in-memory plants so later rendering uses it
-										plants[idx].img = HOLE_PLANT_IMG;
-									}
-								}catch(e){ console.warn('Failed to set hole plant image', e); }
-							})(i);
-						}
-						break; // assign only for the first matching pothos instance
-					}
-				}
-			}catch(e){ console.warn('Error assigning default hole plant image', e); }
-
-			// If a peace lily exists and has no image, assign the user-provided peace lily image URL.
-			try{
-				const PEACE_LILY_IMG = 'https://www.mydomaine.com/thmb/N3StDx3PyGbF0Pwafv-P9-qiNZU=/900x0/filters:no_upscale():strip_icc()/1566417254329_20190821-1566417255317-b9314f1d9f7a4668a466c5ffb1913a8f.jpg';
-				for(let i=0;i<plants.length;i++){
-					const name = (plants[i].name||'').toString().toLowerCase();
-					if(/\b(peace ?lily|spathiphyllum)\b/.test(name)){
-						if(!plants[i].img){
-							(async function(idx){
-								try{
-									const ok = await checkImageExists(PEACE_LILY_IMG);
-									if(ok){
-										state[idx] = state[idx] || {};
-										state[idx].img = PEACE_LILY_IMG;
-										localStorage.setItem('leafie.plants', JSON.stringify(state));
-										plants[idx].img = PEACE_LILY_IMG;
-									}
-								}catch(e){ console.warn('Failed to set peace lily image', e); }
-							})(i);
-						}
-						break; // assign only for the first matching peace lily instance
-					}
-				}
-			}catch(e){ console.warn('Error assigning default peace lily image', e); }
-			if(plants.length){
-				// render all active plants as small cards (show image if present, fallback to placeholder)
-				let html = '<div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">';
-				for(let i=0;i<plants.length;i++){
-					const p = plants[i] || {};
-					const nameEsc = (p.name||'Plant').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-					const imgId = 'plant-img-' + i;
-					// render a placeholder immediately; we'll probe for better image paths asynchronously
-					html += `
-						<div style="background:#fff;border-radius:8px;padding:10px;display:flex;gap:12px;align-items:center;min-width:260px;box-shadow:var(--shadow);border:1px solid rgba(28,90,48,0.04);">
-							<img id="${imgId}" src="${placeholderDataUrl()}" alt="${nameEsc}" style="width:96px;height:72px;object-fit:cover;border-radius:6px;">
-							<div style="display:flex;flex-direction:column;align-items:flex-start;">
-								<div class="tag" style="font-size:12px;padding:4px 8px;">${nameEsc}</div>
-								<div style="font-weight:700;margin-top:8px;">${nameEsc}</div>
-								<div class="plant-desc" style="margin-top:6px;">Your personal plant companion.</div>
-							</div>
-						</div>`;
-				}
-				html += '</div>';
-				wrap.innerHTML = html;
-				// After rendering placeholders, try to find actual images for each plant asynchronously
-				for(let i=0;i<plants.length;i++){
-					(async function(idx){
-						const p = plants[idx] || {};
-						const imgEl = document.getElementById('plant-img-' + idx);
-						if(!imgEl) return;
-						const found = await findImageForPlant(p, idx);
-						if(found){
-							imgEl.src = found;
-						}
-					})(i);
-				}
-			} else {
-				wrap.innerHTML = `
-					<div style="padding:18px;">
-						<div style="font-weight:700; margin-bottom:8px;">No active plant</div>
-						<div style="color:#2b6b8a; margin-bottom:12px;">Select a plant in the Plants page to show it here.</div>
-							<a class="big-btn" href="plants.html">Select Plant</a>
-					</div>
-				`;
-			}
-		}catch(e){
-			wrap.textContent = 'Error loading plant';
-			console.error(e);
-		}
-	}
-
-	// Helper: return a simple inline SVG placeholder data URL
-	function placeholderDataUrl(){
-		const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'><rect width='100%' height='100%' fill='%23f0fbf0'/><g fill='%2380c080' font-family='sans-serif' font-size='20'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'>No Image</text></g></svg>`;
-		return 'data:image/svg+xml;base64,' + btoa(svg);
-	}
-
-	// Manual image upload removed: images are discovered automatically only
-
-	// Check if an image URL loads successfully
-	function checkImageExists(url, timeout=4000){
-		return new Promise((resolve)=>{
-			if(!url) return resolve(false);
-			// data URLs are assumed valid
-			if(url.startsWith('data:')) return resolve(true);
-			const img = new Image();
-			let done = false;
-			const onSuccess = ()=>{ if(done) return; done=true; resolve(true); cleanup(); };
-			const onFail = ()=>{ if(done) return; done=true; resolve(false); cleanup(); };
-			const cleanup = ()=>{ img.onload = img.onerror = null; clearTimeout(timer); };
-			img.onload = onSuccess;
-			img.onerror = onFail;
-			img.src = url;
-			const timer = setTimeout(()=>{ if(done) return; done=true; resolve(false); cleanup(); }, timeout);
-		});
-	}
-
-	// slugify plant name into filename-friendly string
-	function slugify(name){
-		return (name||'').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-	}
-
-	// Try to locate an image for the given plant object. If found, also persist to localStorage.
-	async function findImageForPlant(p, index){
-		try{
-			if(!p) return null;
-			// 1) If plant already has an image and it's valid, use it
-			if(p.img){
-				if(await checkImageExists(p.img)) return p.img;
-			}
-			// 2) Try common candidate paths based on plant name
-			const name = p.name || '';
-			const slug = slugify(name);
-			const candidates = [];
-			if(slug){
-				candidates.push('./images/' + slug + '.svg');
-				candidates.push('./images/' + slug + '.png');
-				candidates.push('./images/' + slug + '.jpg');
-				candidates.push('./images/' + slug + '.jpeg');
-				candidates.push('./images/' + slug + '.webp');
-				candidates.push('./' + slug + '.svg');
-				candidates.push('./' + slug + '.png');
-				candidates.push('./' + slug + '.jpg');
-				candidates.push('./' + slug + '.jpeg');
-				candidates.push('./' + slug + '.webp');
-			}
-			// also try some well-known common names for the specific plants the user mentioned
-			const lower = (name||'').toLowerCase();
-			if(/peace ?lily|spathiphyllum/.test(lower)){
-				candidates.push('./images/peace-lily.svg','./images/peace-lily.jpg','./images/peace-lily.png','./images/peace-lily.webp');
-			}
-			if(/hole|pothos|devil's ivy|epipremnum|golden pothos/.test(lower)){
-				candidates.push('./images/pothos.svg','./images/pothos.jpg','./images/pothos.png','./images/pothos.webp');
-			}
-			if(/fiddle|fiddle leaf|fiddle-leaf|fiddle leaf fig|fiddle-leaf-fig|ficus lyrata/.test(lower)){
-				candidates.push('./images/fiddle-leaf-fig.svg','./images/fiddle-leaf-fig.png','./images/fiddle-leaf-fig.jpg');
-			}
-			// de-duplicate candidates
-			const seen = new Set();
-			const uniq = candidates.filter(c=>{ if(!c) return false; if(seen.has(c)) return false; seen.add(c); return true; });
-			for(const c of uniq){
-				if(await checkImageExists(c)){
-					// persist the discovered path so next time load is immediate
-					try{
-						const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
-						state[index] = state[index] || {};
-						state[index].img = c;
-						localStorage.setItem('leafie.plants', JSON.stringify(state));
-					}catch(e){/* ignore persisting errors */}
-					return c;
-				}
-			}
-			// nothing found
-			return null;
-		}catch(e){ console.error('findImageForPlant error', e); return null; }
-	}
-
-	// Try to automatically reconnect to a previously-authorized USB micro:bit on page load
-	async function autoReconnectUSB(){
-		if(!navigator.usb) return;
-		try{
-			const devices = await navigator.usb.getDevices();
-			const found = devices.find(d => /micro/i.test(d.productName || '')) || null;
-			if(found){
-				usbDevice = found;
-				connStatus.textContent = 'Reconnecting to USB device...';
-				try{
-					await usbDevice.open();
-					if(usbDevice.configuration === null){
-						try{ await usbDevice.selectConfiguration(1); }catch(e){}
-					}
-					try{
-						const iface = (usbDevice.configuration && usbDevice.configuration.interfaces && usbDevice.configuration.interfaces[0]);
-						if(iface){ await usbDevice.claimInterface(iface.interfaceNumber); }
-					}catch(e){ /* ignore interface claim errors */ }
-									// detect endpoints, start read loop and update UI
-									detectUsbEndpoints(usbDevice);
-									try{ startUsbReadLoop(usbDevice); }catch(e){}
-									connStatus.textContent = 'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
-									connectBtn.textContent = 'Connected (USB)';
-									connectBtn.disabled = true;
-									// ensure disconnect listener mounted
-					navigator.usb.addEventListener('disconnect', (ev)=>{
-						try{ if(ev.device && ev.device === usbDevice){ connStatus.textContent = 'USB device disconnected'; connectBtn.textContent = 'Connect'; connectBtn.disabled = false; usbDevice = null; usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null; } }catch(e){}
-					});
-				}catch(err){
-					console.warn('Auto-reconnect failed:', err);
-					connStatus.textContent = 'Unable to auto-reconnect USB';
-				}
-			}
-		}catch(e){ console.error('Error checking usb devices', e); }
-	}
-
-	// initial render
-	renderActivePlant();
-	// attempt auto-reconnect (if the browser remembers the granted device permission)
-	autoReconnectUSB();
-	</script>
 </body>
 </html>
