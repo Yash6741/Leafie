@@ -370,27 +370,26 @@
 			const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
 			const plants = (state || []).filter(p => p);
 
-			// Fix: if there are duplicate "hole/pothos" entries, convert the second one back to "Gold Palm"
+			// If there are multiple pothos/hole-plant entries, replace the second occurrence
 			try{
-				let pothosCount = 0;
-				let changed = false;
+				const pothosIndexes = [];
 				for(let i=0;i<plants.length;i++){
 					const name = (plants[i].name || '').toString().toLowerCase();
-					if(/hole|pothos|devil's ivy|epipremnum/.test(name)){
-						pothosCount += 1;
-						if(pothosCount > 1){
-							// rename the duplicate to Gold Palm and persist
-							plants[i].name = 'Gold Palm';
-							state[i] = state[i] || {};
-							state[i].name = 'Gold Palm';
-							changed = true;
-						}
+					if(/\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/.test(name)){
+						pothosIndexes.push(i);
 					}
 				}
-				if(changed){
-					localStorage.setItem('leafie.plants', JSON.stringify(state));
+				if(pothosIndexes.length > 1){
+					// target only the second occurrence (index 1)
+					const idx = pothosIndexes[1];
+					if(idx != null){
+						plants[idx].name = 'Gold Palm';
+						state[idx] = state[idx] || {};
+						state[idx].name = 'Gold Palm';
+						localStorage.setItem('leafie.plants', JSON.stringify(state));
+					}
 				}
-			}catch(e){ console.warn('Error normalizing plant names', e); }
+			}catch(e){ console.warn('Error replacing duplicate pothos entry', e); }
 			if(plants.length){
 				// render all active plants as small cards (show image if present, fallback to placeholder)
 				let html = '<div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">';
