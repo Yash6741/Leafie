@@ -390,6 +390,56 @@
 					}
 				}
 			}catch(e){ console.warn('Error replacing duplicate pothos entry', e); }
+
+			// If a pothos/hole plant exists and has no image, assign the user-provided image URL.
+			try{
+				const HOLE_PLANT_IMG = 'https://florastore.com/cdn/shop/files/1711701_Productimage_02_SQ_grande.jpg?v=1764599206';
+				for(let i=0;i<plants.length;i++){
+					const name = (plants[i].name||'').toString().toLowerCase();
+					if(/\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/.test(name)){
+						if(!plants[i].img){
+							// check the image URL is reachable before persisting
+							(async function(idx){
+								try{
+									const ok = await checkImageExists(HOLE_PLANT_IMG);
+									if(ok){
+										state[idx] = state[idx] || {};
+										state[idx].img = HOLE_PLANT_IMG;
+										localStorage.setItem('leafie.plants', JSON.stringify(state));
+										// update in-memory plants so later rendering uses it
+										plants[idx].img = HOLE_PLANT_IMG;
+									}
+								}catch(e){ console.warn('Failed to set hole plant image', e); }
+							})(i);
+						}
+						break; // assign only for the first matching pothos instance
+					}
+				}
+			}catch(e){ console.warn('Error assigning default hole plant image', e); }
+
+			// If a peace lily exists and has no image, assign the user-provided peace lily image URL.
+			try{
+				const PEACE_LILY_IMG = 'https://www.mydomaine.com/thmb/N3StDx3PyGbF0Pwafv-P9-qiNZU=/900x0/filters:no_upscale():strip_icc()/1566417254329_20190821-1566417255317-b9314f1d9f7a4668a466c5ffb1913a8f.jpg';
+				for(let i=0;i<plants.length;i++){
+					const name = (plants[i].name||'').toString().toLowerCase();
+					if(/\b(peace ?lily|spathiphyllum)\b/.test(name)){
+						if(!plants[i].img){
+							(async function(idx){
+								try{
+									const ok = await checkImageExists(PEACE_LILY_IMG);
+									if(ok){
+										state[idx] = state[idx] || {};
+										state[idx].img = PEACE_LILY_IMG;
+										localStorage.setItem('leafie.plants', JSON.stringify(state));
+										plants[idx].img = PEACE_LILY_IMG;
+									}
+								}catch(e){ console.warn('Failed to set peace lily image', e); }
+							})(i);
+						}
+						break; // assign only for the first matching peace lily instance
+					}
+				}
+			}catch(e){ console.warn('Error assigning default peace lily image', e); }
 			if(plants.length){
 				// render all active plants as small cards (show image if present, fallback to placeholder)
 				let html = '<div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">';
