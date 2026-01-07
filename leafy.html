@@ -375,10 +375,11 @@
 				for(let i=0;i<plants.length;i++){
 					const p = plants[i] || {};
 					const nameEsc = (p.name||'Plant').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-					const imgSrc = (p.img && p.img.length) ? p.img : placeholderDataUrl();
+					const imgId = 'plant-img-' + i;
+					// render a placeholder immediately; we'll probe for better image paths asynchronously
 					html += `
 						<div style="background:#fff;border-radius:8px;padding:10px;display:flex;gap:12px;align-items:center;min-width:260px;box-shadow:var(--shadow);border:1px solid rgba(28,90,48,0.04);">
-							<img src="${imgSrc}" alt="${nameEsc}" style="width:96px;height:72px;object-fit:cover;border-radius:6px;">
+							<img id="${imgId}" src="${placeholderDataUrl()}" alt="${nameEsc}" style="width:96px;height:72px;object-fit:cover;border-radius:6px;">
 							<div style="display:flex;flex-direction:column;align-items:flex-start;">
 								<div class="tag" style="font-size:12px;padding:4px 8px;">${nameEsc}</div>
 								<div style="font-weight:700;margin-top:8px;">${nameEsc}</div>
@@ -389,6 +390,18 @@
 				}
 				html += '</div>';
 				wrap.innerHTML = html;
+				// After rendering placeholders, try to find actual images for each plant asynchronously
+				for(let i=0;i<plants.length;i++){
+					(async function(idx){
+						const p = plants[idx] || {};
+						const imgEl = document.getElementById('plant-img-' + idx);
+						if(!imgEl) return;
+						const found = await findImageForPlant(p, idx);
+						if(found){
+							imgEl.src = found;
+						}
+					})(i);
+				}
 			} else {
 				wrap.innerHTML = `
 					<div style="padding:18px;">
@@ -445,6 +458,79 @@
 			localStorage.setItem('leafie.plants', JSON.stringify(state));
 			renderActivePlant();
 		}catch(e){ console.error('setPlantImage error', e); }
+	}
+
+	// Check if an image URL loads successfully
+	function checkImageExists(url, timeout=4000){
+		return new Promise((resolve)=>{
+			if(!url) return resolve(false);
+			// data URLs are assumed valid
+			if(url.startsWith('data:')) return resolve(true);
+			const img = new Image();
+			let done = false;
+			const onSuccess = ()=>{ if(done) return; done=true; resolve(true); cleanup(); };
+			const onFail = ()=>{ if(done) return; done=true; resolve(false); cleanup(); };
+			const cleanup = ()=>{ img.onload = img.onerror = null; clearTimeout(timer); };
+			img.onload = onSuccess;
+			img.onerror = onFail;
+			img.src = url;
+			const timer = setTimeout(()=>{ if(done) return; done=true; resolve(false); cleanup(); }, timeout);
+		});
+	}
+
+	// slugify plant name into filename-friendly string
+	function slugify(name){
+		return (name||'').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
+	}
+
+	// Try to locate an image for the given plant object. If found, also persist to localStorage.
+	async function findImageForPlant(p, index){
+		try{
+			if(!p) return null;
+			// 1) If plant already has an image and it's valid, use it
+			if(p.img){
+				if(await checkImageExists(p.img)) return p.img;
+			}
+			// 2) Try common candidate paths based on plant name
+			const name = p.name || '';
+			const slug = slugify(name);
+			const candidates = [];
+			if(slug){
+				candidates.push('./images/' + slug + '.png');
+				candidates.push('./images/' + slug + '.jpg');
+				candidates.push('./images/' + slug + '.jpeg');
+				candidates.push('./images/' + slug + '.webp');
+				candidates.push('./' + slug + '.png');
+				candidates.push('./' + slug + '.jpg');
+				candidates.push('./' + slug + '.jpeg');
+				candidates.push('./' + slug + '.webp');
+			}
+			// also try some well-known common names for the specific plants the user mentioned
+			const lower = (name||'').toLowerCase();
+			if(/peace ?lily|spathiphyllum/.test(lower)){
+				candidates.push('./images/peace-lily.jpg','./images/peace-lily.png','./images/peace-lily.webp');
+			}
+			if(/hole|pothos|devil's ivy|epipremnum|golden pothos/.test(lower)){
+				candidates.push('./images/pothos.jpg','./images/pothos.png','./images/pothos.webp');
+			}
+			// de-duplicate candidates
+			const seen = new Set();
+			const uniq = candidates.filter(c=>{ if(!c) return false; if(seen.has(c)) return false; seen.add(c); return true; });
+			for(const c of uniq){
+				if(await checkImageExists(c)){
+					// persist the discovered path so next time load is immediate
+					try{
+						const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
+						state[index] = state[index] || {};
+						state[index].img = c;
+						localStorage.setItem('leafie.plants', JSON.stringify(state));
+					}catch(e){/* ignore persisting errors */}
+					return c;
+				}
+			}
+			// nothing found
+			return null;
+		}catch(e){ console.error('findImageForPlant error', e); return null; }
 	}
 
 	// Try to automatically reconnect to a previously-authorized USB micro:bit on page load
