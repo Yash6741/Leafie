@@ -368,7 +368,27 @@
 		const wrap = document.getElementById('activePlantContent');
 		try{
 			const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
-			const plants = (state || []).filter(p => p);
+			let plants = (state || []).filter(p => p);
+
+			// Remove any pothos/hole-plant entries per user request
+			try{
+				const removeRegex = /\b(hole|pothos|devil's ivy|epipremnum|golden pothos|hole plant)\b/i;
+				const filteredState = [];
+				let removed = false;
+				for(let i=0;i<state.length;i++){
+					const p = state[i];
+					const name = (p && p.name) ? p.name.toString() : '';
+					if(removeRegex.test(name)){
+						removed = true;
+						continue; // skip this entry (remove it)
+					}
+					filteredState.push(p);
+				}
+				if(removed){
+					localStorage.setItem('leafie.plants', JSON.stringify(filteredState));
+					plants = (filteredState || []).filter(p => p);
+				}
+			}catch(e){ console.warn('Error removing pothos entries', e); }
 
 			// If there are multiple pothos/hole-plant entries, replace the second occurrence
 			try{
