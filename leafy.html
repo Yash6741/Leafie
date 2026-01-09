@@ -21,7 +21,6 @@
 			display:flex; min-height:100vh;
 		}
 
-		/* Sidebar */
 		.sidebar{
 			width:220px; background:#eaf6ea; padding:28px 20px; box-shadow: inset -1px 0 0 rgba(0,0,0,0.03);
 			display:flex; flex-direction:column; gap:18px;
@@ -32,7 +31,7 @@
 		.nav a:hover{ background:rgba(0,0,0,0.03); }
 		.footer-note{ margin-top:auto; font-size:13px; color:#2f6b5b; }
 
-		/* Main content */
+
 		.main{flex:1; padding:28px;}
 		.header{ display:flex; align-items:center; gap:20px; }
 		.page-title{ font-size:28px; font-weight:800; }
@@ -43,12 +42,11 @@
 
 		.card h3{ margin:0 0 12px 0; font-size:20px; display:flex; align-items:center; gap:8px; }
 
-		/* Connection card */
+
 		.conn-status{ font-size:13px; color:#31708f; margin-bottom:12px; }
 		.big-btn{ display:inline-flex; align-items:center; gap:10px; padding:12px 18px; background:var(--green); color:white; border-radius:8px; border:none; font-weight:600; cursor:pointer; }
 		.big-btn[disabled]{ background:#cfcfcf; cursor:default; }
 
-		/* Active plant card */
 		.plant-card{ display:flex; gap:18px; align-items:stretch; }
 		.plant-card img{ width:260px; height:180px; object-fit:cover; border-radius:8px; }
 		.plant-info{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; }
@@ -56,14 +54,7 @@
 		.plant-name{ font-size:22px; font-weight:800; margin-top:8px; }
 		.plant-desc{ color:#2b5b84; margin-top:12px; }
 
-		/* Reservoir */
-		.reservoir{ display:flex; flex-direction:column; gap:12px; }
-		.progress-wrap{ background:var(--panel); padding:18px; border-radius:10px; box-shadow:var(--shadow); }
-		.bar{ height:28px; background:var(--muted); border-radius:14px; position:relative; overflow:hidden; }
-		.bar-fill{ position:absolute; left:0; top:0; bottom:0; width:0%; background:linear-gradient(90deg,var(--green), #4aa85a); border-radius:14px; transition:width .4s ease; }
-		.bar-label{ position:relative; z-index:1; height:28px; display:flex; align-items:center; justify-content:center; color:#10201b; font-weight:700; }
-
-		/* Responsive */
+		
 		@media (max-width:900px){ .grid{ grid-template-columns: 1fr; } .sidebar{display:none;} body{padding:12px;} }
 	</style>
 </head>
@@ -87,7 +78,7 @@
 		</div>
 
 		<div class="grid">
-			<!-- Connection Card -->
+
 			<div class="card">
 				<h3>Connection</h3>
 				<div id="connStatus" class="conn-status">Disconnected</div>
@@ -97,7 +88,7 @@
 				</div>
 			</div>
 
-			<!-- Active Plant Card -->
+
 			<div class="card">
 				<h3>Active Plant</h3>
 				<div id="activePlantWrap" style="margin-top:6px; border-radius:8px; padding:12px; border:1px solid rgba(46,125,50,0.08);">
@@ -106,7 +97,6 @@
 				</div>
 			</div>
 
-			<!-- Water Reservoir removed per user request -->
 
 		</div>
 	</main>
@@ -122,20 +112,17 @@
 
 	connectBtn.addEventListener('click', async ()=>{
 		try{
-			// Prefer USB-connected micro:bit (WebUSB) by scanning available USB ports first.
+
 			connStatus.textContent = 'Searching USB ports for micro:bit...';
 
 			if(navigator.usb){
-				// Check already-authorized devices first
 				const usbDevices = await navigator.usb.getDevices();
 				usbDevice = usbDevices.find(d => /micro/i.test(d.productName || '')) || null;
 
-				// If none found, prompt the user to select a device matching a common micro:bit vendor (ARM Ltd 0x0D28)
 				if(!usbDevice){
 					try{
 						usbDevice = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0D28 }] });
 					}catch(e){
-						// user cancelled or no matching device
 						usbDevice = null;
 					}
 				}
@@ -146,38 +133,36 @@
 					if(usbDevice.configuration === null){
 						try{ await usbDevice.selectConfiguration(1); }catch(e){}
 					}
-					// Attempt to claim the first interface (many micro:bit firmware expose a CDC/USB interface)
 					try{
 						const iface = (usbDevice.configuration && usbDevice.configuration.interfaces && usbDevice.configuration.interfaces[0]);
 						if(iface){
 							const interfaceNumber = iface.interfaceNumber;
 							await usbDevice.claimInterface(interfaceNumber);
 						}
-					}catch(e){/* non-fatal if claiming fails */}
+					}catch(e){}
 
 					connStatus.textContent = 'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
 					connectBtn.textContent = 'Connected (USB)';
-									// detect interface/endpoints (IN/OUT) and start USB read loop
+									
 									try{ detectUsbEndpoints(usbDevice); startUsbReadLoop(usbDevice); }catch(e){ console.warn('startUsbReadLoop/endpoint detect failed', e); }
-					// Disable the Connect button to avoid accidental manual disconnects;
-					// keep the USB device open until it's physically removed.
+				
 					connectBtn.disabled = true;
 
-					// Listen for USB disconnect events and update UI when device removed
+	
 					navigator.usb.addEventListener('disconnect', (ev)=>{
 						try{
 							if(ev.device && usbDevice && ev.device === usbDevice){
 								connStatus.textContent = 'USB device disconnected';
 								connectBtn.textContent = 'Connect';
 								connectBtn.disabled = false;
-								// clear local reference and endpoints
+							
 								usbDevice = null;
 								usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null;
 							}
 						}catch(e){ console.error('Error handling USB disconnect', e); }
 					});
 
-					// Also listen for connect events (optional auto-update)
+	
 					navigator.usb.addEventListener('connect', (ev)=>{
 						if(ev.device && usbDevice==null && /micro/i.test(ev.device.productName||'')){
 							connStatus.textContent = 'micro:bit connected to USB';
@@ -188,14 +173,13 @@
 				}
 			}
 
-					// Fall back to Bluetooth if USB not available or user didn't select a device
 					connStatus.textContent = 'USB not found — requesting Bluetooth...';
-					// Try several common micro:bit name prefixes and request the Nordic UART Service (NUS).
+				
 					const nameFilters = [ { namePrefix: 'BBC micro:bit' }, { namePrefix: 'micro:bit' }, { namePrefix: 'microbit' } ];
 					try{
 						device = await navigator.bluetooth.requestDevice({ filters: nameFilters, optionalServices: [SERVICE_UUID, 'battery_service', 'device_information'] });
 					}catch(e){
-						// If no device matched or user cancelled, fall back to a broader prompt.
+						
 						try{
 							device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [SERVICE_UUID, 'battery_service', 'device_information'] });
 						}catch(err){
@@ -211,30 +195,28 @@
 						connectBtn.disabled = false;
 						device = null;
 					});
-					// get NUS service and RX/TX characteristics if available
+		
 					service = await server.getPrimaryService(SERVICE_UUID);
-					// RX: write from client -> device
+			
 					characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
-					// TX: notify from device -> client
+
 					try{
 						const txChar = await service.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
-						// ensure notifications are started by the existing helper
+
 					}catch(e){
-						// it's fine if the TX characteristic isn't present; notifications may be unavailable
+	
 					}
 					connStatus.textContent = 'Connected (BLE: ' + (device.name || 'micro:bit') + ')';
 					connectBtn.textContent = 'Connected';
 					connectBtn.disabled = true;
-					// start BLE notifications to receive sensor data if available
+
 					try{ await startBleNotifications(server); }catch(e){ console.warn('startBleNotifications failed', e); }
-			// Optionally add more UI hooks here (enable watering button inside card, show reservoir levels, etc.)
 		}catch(err){
 			connStatus.textContent = 'Connection failed';
 			console.error(err);
 		}
 	});
 
-	// Moisture handling (no UI shown): keep internal state for logic/telemetry
 	let currentMoisture = null;
 	function setMoisture(percent){
 		if(percent == null || isNaN(percent)){
@@ -242,20 +224,17 @@
 			return;
 		}
 		currentMoisture = Math.max(0, Math.min(100, Math.round(percent)));
-		// kept silent: no visible UI update. console.debug for diagnostics.
+
 		console.debug('Moisture updated:', currentMoisture);
 	}
 
-	// BLE: subscribe to NUS TX (device->client) characteristic for incoming sensor values
 	async function startBleNotifications(gattServer){
 		try{
 			const svc = await gattServer.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
-			// TX characteristic (device -> client) typically ends with ...003
 			let notifyChar = null;
 			try{
 				notifyChar = await svc.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
 			}catch(e){
-				// characteristic may not be present on some firmwares
 				console.warn('TX characteristic not present', e);
 			}
 			if(notifyChar){
@@ -263,7 +242,6 @@
 				notifyChar.addEventListener('characteristicvaluechanged', (ev)=>{
 					try{
 						const value = new TextDecoder().decode(ev.target.value);
-						// Expect either a plain number (0-100) or something like 'MOIST:45'
 						const m = value.match(/(\d{1,3})/);
 						if(m) setMoisture(Number(m[1]));
 					}catch(e){ console.error('BLE notify parse error', e); }
@@ -272,7 +250,6 @@
 		}catch(e){ console.warn('No BLE notify characteristic available or subscribe failed', e); }
 	}
 
-	// Disconnect helper for BLE
 	function bleDisconnect(){
 		try{
 			if(device && device.gatt && device.gatt.connected){
@@ -285,14 +262,12 @@
 		connectBtn.disabled = false;
 	}
 
-	// USB: attempt to read from an IN endpoint in a loop and parse text lines
 	let usbReadLoopRunning = false;
 	async function startUsbReadLoop(device){
 		if(!device) return;
 		if(usbReadLoopRunning) return;
 		usbReadLoopRunning = true;
 		try{
-			// find an IN endpoint
 			const config = device.configuration;
 			let inEndpoint = null;
 			if(config && config.interfaces){
@@ -309,7 +284,6 @@
 
 			while(device && device.opened){
 				if(inEndpoint==null){
-					// nothing to read from
 					await new Promise(r=>setTimeout(r,1000));
 					continue;
 				}
@@ -321,7 +295,6 @@
 						if(m) setMoisture(Number(m[1]));
 					}
 				}catch(e){
-					// if device disconnected or endpoint error, break
 					console.warn('USB transferIn error', e);
 					break;
 				}
@@ -331,7 +304,6 @@
 	}
 
 
-	// detect and set usb interface and endpoints for IN/OUT
 	function detectUsbEndpoints(device){
 		usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null;
 		const config = device.configuration;
@@ -350,22 +322,18 @@
 		}
 	}
 
-	// (Water command removed - USB write UI removed per request)
 
-	// Active plant rendering: show first saved plant slot if present, otherwise placeholder
 	function renderActivePlant(){
 		const wrap = document.getElementById('activePlantContent');
 		try{
 			const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
 			const plants = (state || []).filter(p => p);
 			if(plants.length){
-				// render all active plants as small cards (show image if present, fallback to placeholder)
 				let html = '<div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">';
 				for(let i=0;i<plants.length;i++){
 					const p = plants[i] || {};
 					const nameEsc = (p.name||'Plant').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 					const imgId = 'plant-img-' + i;
-					// render a placeholder immediately; we'll probe for better image paths asynchronously
 					html += `
 						<div style="background:#fff;border-radius:8px;padding:10px;display:flex;gap:12px;align-items:center;min-width:260px;box-shadow:var(--shadow);border:1px solid rgba(28,90,48,0.04);">
 							<img id="${imgId}" src="${placeholderDataUrl()}" alt="${nameEsc}" style="width:96px;height:72px;object-fit:cover;border-radius:6px;">
@@ -378,7 +346,6 @@
 				}
 				html += '</div>';
 				wrap.innerHTML = html;
-				// After rendering placeholders, try to find actual images for each plant asynchronously
 				for(let i=0;i<plants.length;i++){
 					(async function(idx){
 						const p = plants[idx] || {};
@@ -405,15 +372,12 @@
 		}
 	}
 
-	// Helper: return a simple inline SVG placeholder data URL
 	function placeholderDataUrl(){
 		const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'><rect width='100%' height='100%' fill='%23f0fbf0'/><g fill='%2380c080' font-family='sans-serif' font-size='20'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'>No Image</text></g></svg>`;
 		return 'data:image/svg+xml;base64,' + btoa(svg);
 	}
 
-	// Manual image upload removed: images are discovered automatically only
 
-	// Check if an image URL loads successfully
 	function checkImageExists(url, timeout=4000){
 		return new Promise((resolve)=>{
 			if(!url) return resolve(false);
@@ -431,20 +395,16 @@
 		});
 	}
 
-	// slugify plant name into filename-friendly string
 	function slugify(name){
 		return (name||'').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
 	}
 
-	// Try to locate an image for the given plant object. If found, also persist to localStorage.
 	async function findImageForPlant(p, index){
 		try{
 			if(!p) return null;
-			// 1) If plant already has an image and it's valid, use it
 			if(p.img){
 				if(await checkImageExists(p.img)) return p.img;
 			}
-			// 2) Try common candidate paths based on plant name
 			const name = p.name || '';
 			const slug = slugify(name);
 			const candidates = [];
@@ -458,7 +418,6 @@
 				candidates.push('./' + slug + '.jpeg');
 				candidates.push('./' + slug + '.webp');
 			}
-			// also try some well-known common names for the specific plants the user mentioned
 			const lower = (name||'').toLowerCase();
 			if(/peace ?lily|spathiphyllum/.test(lower)){
 				candidates.push('./images/peace-lily.jpg','./images/peace-lily.png','./images/peace-lily.webp');
@@ -466,27 +425,23 @@
 			if(/hole|pothos|devil's ivy|epipremnum|golden pothos/.test(lower)){
 				candidates.push('./images/pothos.jpg','./images/pothos.png','./images/pothos.webp');
 			}
-			// de-duplicate candidates
 			const seen = new Set();
 			const uniq = candidates.filter(c=>{ if(!c) return false; if(seen.has(c)) return false; seen.add(c); return true; });
 			for(const c of uniq){
 				if(await checkImageExists(c)){
-					// persist the discovered path so next time load is immediate
 					try{
 						const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
 						state[index] = state[index] || {};
 						state[index].img = c;
 						localStorage.setItem('leafie.plants', JSON.stringify(state));
-					}catch(e){/* ignore persisting errors */}
+					}catch(e){}
 					return c;
 				}
 			}
-			// nothing found
 			return null;
 		}catch(e){ console.error('findImageForPlant error', e); return null; }
 	}
 
-	// Try to automatically reconnect to a previously-authorized USB micro:bit on page load
 	async function autoReconnectUSB(){
 		if(!navigator.usb) return;
 		try{
@@ -503,14 +458,12 @@
 					try{
 						const iface = (usbDevice.configuration && usbDevice.configuration.interfaces && usbDevice.configuration.interfaces[0]);
 						if(iface){ await usbDevice.claimInterface(iface.interfaceNumber); }
-					}catch(e){ /* ignore interface claim errors */ }
-									// detect endpoints, start read loop and update UI
+					}catch(e){}
 									detectUsbEndpoints(usbDevice);
 									try{ startUsbReadLoop(usbDevice); }catch(e){}
 									connStatus.textContent = 'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
 									connectBtn.textContent = 'Connected (USB)';
 									connectBtn.disabled = true;
-									// ensure disconnect listener mounted
 					navigator.usb.addEventListener('disconnect', (ev)=>{
 						try{ if(ev.device && ev.device === usbDevice){ connStatus.textContent = 'USB device disconnected'; connectBtn.textContent = 'Connect'; connectBtn.disabled = false; usbDevice = null; usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null; } }catch(e){}
 					});
@@ -522,10 +475,9 @@
 		}catch(e){ console.error('Error checking usb devices', e); }
 	}
 
-	// initial render
 	renderActivePlant();
-	// attempt auto-reconnect (if the browser remembers the granted device permission)
 	autoReconnectUSB();
 	</script>
 </body>
 </html>
+
