@@ -104,18 +104,10 @@
         </div>
 
         <div class="form-group">
-          <div id="defaultThresholdGroup">
-            <label>Moisture Threshold: <span id="thresholdLabel">40%</span></label>
-            <div class="small">Set the soil moisture level that triggers automatic watering.</div>
-            <div class="slider-wrap">
-              <input id="threshold" type="range" min="0" max="100" value="40">
-            </div>
-          </div>
-
-          <div id="selectedPlantsControlsWrap" style="display:none;">
-            <label>Selected Plants Moisture</label>
-            <div class="small">Adjust moisture threshold per selected plant.</div>
-            <div id="selectedPlantsControls" style="margin-top:10px; display:flex; flex-direction:column; gap:12px;"></div>
+          <label>Moisture Threshold: <span id="thresholdLabel">40%</span></label>
+          <div class="small">Set the soil moisture level that triggers automatic watering.</div>
+          <div class="slider-wrap">
+            <input id="threshold" type="range" min="0" max="100" value="40">
           </div>
         </div>
 
@@ -130,9 +122,6 @@
     const autoSwitch = document.getElementById('autoSwitch');
     const thresholdEl = document.getElementById('threshold');
     const thresholdLabel = document.getElementById('thresholdLabel');
-    const selectedPlantsControlsWrap = document.getElementById('selectedPlantsControlsWrap');
-    const selectedPlantsControls = document.getElementById('selectedPlantsControls');
-    const defaultThresholdGroup = document.getElementById('defaultThresholdGroup');
 
     function loadSettings(){
       const s = JSON.parse(localStorage.getItem('leafie.settings')||'{}');
@@ -140,150 +129,14 @@
       plantTypeEl.value = s.type || 'fiddle';
       const auto = !!s.auto;
       setSwitch(auto);
-
-      // If other parts of the app expose selected plants, show per-plant controls.
-      renderSelectedPlantsControls();
-
-      // If no selected plants, fall back to the global threshold stored in settings
-      if(!hasSelectedPlants()){
-        thresholdEl.value = (s.threshold!=null? s.threshold: 40);
-        thresholdLabel.textContent = thresholdEl.value + '%';
-      }
+      thresholdEl.value = (s.threshold!=null? s.threshold: 40);
+      thresholdLabel.textContent = thresholdEl.value + '%';
     }
 
     function saveSettings(){
       const s = { name:plantNameEl.value, type:plantTypeEl.value, auto: autoSwitch.classList.contains('on'), threshold: parseInt(thresholdEl.value,10) };
       localStorage.setItem('leafie.settings', JSON.stringify(s));
     }
-
-    // Helpers for per-selected-plant thresholds
-    function tryParseJSON(v){ try{ return JSON.parse(v); }catch(e){ return null; } }
-
-    function getSelectedPlants(){
-      // Support a few possible keys other parts of app might use
-      const keys = ['leafie.selectedPlants','leafie.selection','leafie.selected'];
-      for(const k of keys){
-        const raw = localStorage.getItem(k);
-        if(!raw) continue;
-        const val = tryParseJSON(raw);
-        if(Array.isArray(val)) return val;
-      }
-      return null;
-    }
-
-    function hasSelectedPlants(){
-      const s = getSelectedPlants();
-      return Array.isArray(s) && s.length>0;
-    }
-
-    function getPlantStore(){
-      return tryParseJSON(localStorage.getItem('leafie.plants')) || {};
-    }
-
-    function savePlantStore(store){
-      localStorage.setItem('leafie.plants', JSON.stringify(store));
-    }
-
-    function loadPlantThreshold(id){
-      const store = getPlantStore();
-      return (store[id] && store[id].threshold!=null)? store[id].threshold : null;
-    }
-
-    function savePlantThreshold(id, value){
-      const store = getPlantStore();
-      store[id] = store[id] || {};
-      store[id].threshold = parseInt(value,10);
-      savePlantStore(store);
-    }
-
-    function getPlantNameFromEntry(entry, idx){
-      if(!entry) return ('Plant ' + (idx+1));
-      if(typeof entry === 'string') return entry;
-      if(entry.name) return entry.name;
-      if(entry.label) return entry.label;
-      if(entry.id) return entry.id;
-      return ('Plant ' + (idx+1));
-    }
-
-    function renderSelectedPlantsControls(){
-      const sel = getSelectedPlants();
-      if(!Array.isArray(sel) || sel.length===0){
-        // nothing selected: show default threshold group
-        selectedPlantsControlsWrap.style.display = 'none';
-        defaultThresholdGroup.style.display = '';
-        // ensure main threshold reflects settings
-        const s = JSON.parse(localStorage.getItem('leafie.settings')||'{}');
-        thresholdEl.value = (s.threshold!=null? s.threshold: 40);
-        thresholdLabel.textContent = thresholdEl.value + '%';
-        return;
-      }
-
-      // Show per-plant controls
-      selectedPlantsControlsWrap.style.display = '';
-      defaultThresholdGroup.style.display = 'none';
-      selectedPlantsControls.innerHTML = '';
-
-      sel.forEach((entry, idx)=>{
-        const id = (typeof entry === 'string')? entry : (entry.id || ('selected-'+idx));
-        const name = getPlantNameFromEntry(entry, idx);
-        const existingVal = loadPlantThreshold(id);
-
-        const row = document.createElement('div');
-        row.style.display = 'flex';
-        row.style.flexDirection = 'column';
-        row.style.border = '1px solid rgba(0,0,0,0.04)';
-        row.style.padding = '8px';
-        row.style.borderRadius = '8px';
-
-        const label = document.createElement('label');
-        label.textContent = name + ' ('+id+')';
-        label.style.fontWeight = '600';
-        label.style.marginBottom = '6px';
-
-        const sub = document.createElement('div');
-        sub.className = 'small';
-        sub.textContent = 'Set moisture threshold for this plant.';
-
-        const sliderWrap = document.createElement('div');
-        sliderWrap.className = 'slider-wrap';
-        sliderWrap.style.marginTop = '8px';
-
-        const slider = document.createElement('input');
-        slider.type = 'range';
-        slider.min = 0;
-        slider.max = 100;
-        slider.value = (existingVal!=null? existingVal: 40);
-        slider.dataset.plantId = id;
-
-        const pct = document.createElement('div');
-        pct.textContent = slider.value + '%';
-        pct.style.marginTop = '6px';
-        pct.className = 'small';
-
-        slider.addEventListener('input', ()=>{
-          pct.textContent = slider.value + '%';
-        });
-        slider.addEventListener('change', ()=>{
-          savePlantThreshold(id, slider.value);
-        });
-
-        sliderWrap.appendChild(slider);
-        row.appendChild(label);
-        row.appendChild(sub);
-        row.appendChild(sliderWrap);
-        row.appendChild(pct);
-
-        selectedPlantsControls.appendChild(row);
-      });
-    }
-
-    // Re-render when selection or plant store changes in other tabs
-    window.addEventListener('storage', (e)=>{
-      if(!e) return;
-      if(e.key && (e.key.startsWith('leafie.selected') || e.key==='leafie.plants')){
-        renderSelectedPlantsControls();
-      }
-    });
 
     function setSwitch(on){
       if(on){ autoSwitch.classList.add('on'); autoSwitch.setAttribute('aria-checked','true'); } else { autoSwitch.classList.remove('on'); autoSwitch.setAttribute('aria-checked','false'); }
