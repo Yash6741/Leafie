@@ -122,6 +122,82 @@
     const autoSwitch = document.getElementById('autoSwitch');
     const thresholdEl = document.getElementById('threshold');
     const thresholdLabel = document.getElementById('thresholdLabel');
+    let currentSelectedPlantId = null;
+
+    function tryParseJSON(v){ try{ return JSON.parse(v); }catch(e){ return null; } }
+
+    function getPlantStore(){
+      return tryParseJSON(localStorage.getItem('leafie.plants')) || {};
+    }
+
+    function savePlantStore(store){
+      localStorage.setItem('leafie.plants', JSON.stringify(store));
+    }
+
+    function loadPlantThreshold(id){
+      const store = getPlantStore();
+      if(store[id] && store[id].threshold!=null) return store[id].threshold;
+      // also support legacy field names
+      if(store[id] && store[id].desiredThreshold!=null) return store[id].desiredThreshold;
+      return null;
+    }
+
+    function savePlantThreshold(id, value){
+      const store = getPlantStore();
+      store[id] = store[id] || {};
+      store[id].threshold = parseInt(value,10);
+      savePlantStore(store);
+    }
+
+    function detectSelectedPlant(){
+      // try multiple possible keys used elsewhere in app
+      const keys = ['leafie.selectedPlant','leafie.currentPlant','leafie.selection','leafie.selected','leafie.selectedPlants'];
+      for(const k of keys){
+        const raw = localStorage.getItem(k);
+        if(!raw) continue;
+        const val = tryParseJSON(raw);
+        if(typeof val === 'string') return val;
+        if(Array.isArray(val)){
+          if(val.length===1){
+            const e = val[0];
+            if(typeof e === 'string') return e;
+            if(e && e.id) return e.id;
+          }
+          // if multiple selected, return null (we only target single selection here)
+          return null;
+        }
+        if(val && typeof val === 'object'){
+          if(val.id) return val.id;
+          // if object keyed by id
+          const keys2 = Object.keys(val);
+          if(keys2.length===1) return keys2[0];
+        }
+      }
+      return null;
+    }
+
+    function applySelectedPlantToUI(){
+      const id = detectSelectedPlant();
+      currentSelectedPlantId = id;
+      if(id){
+        // if single plant is selected, load its threshold into the main slider
+        const pval = loadPlantThreshold(id);
+        if(pval!=null){
+          thresholdEl.value = pval;
+          thresholdLabel.textContent = thresholdEl.value + '%';
+        } else {
+          // fallback to global or stored default
+          const s = JSON.parse(localStorage.getItem('leafie.settings')||'{}');
+          thresholdEl.value = (s.threshold!=null? s.threshold: 40);
+          thresholdLabel.textContent = thresholdEl.value + '%';
+        }
+      } else {
+        // no single selection: revert to global settings
+        const s = JSON.parse(localStorage.getItem('leafie.settings')||'{}');
+        thresholdEl.value = (s.threshold!=null? s.threshold: 40);
+        thresholdLabel.textContent = thresholdEl.value + '%';
+      }
+    }
 
     function loadSettings(){
       const s = JSON.parse(localStorage.getItem('leafie.settings')||'{}');
@@ -143,11 +219,32 @@
     }
 
     autoSwitch.addEventListener('click', ()=>{ autoSwitch.classList.toggle('on'); saveSettings(); });
-    thresholdEl.addEventListener('input', ()=>{ thresholdLabel.textContent = thresholdEl.value + '%'; saveSettings(); });
+
+    // Update label live. Save target-specific if a single plant is selected on change.
+    thresholdEl.addEventListener('input', ()=>{ thresholdLabel.textContent = thresholdEl.value + '%'; });
+    thresholdEl.addEventListener('change', ()=>{
+      if(currentSelectedPlantId){
+        savePlantThreshold(currentSelectedPlantId, thresholdEl.value);
+      } else {
+        saveSettings();
+      }
+    });
     plantNameEl.addEventListener('change', saveSettings);
     plantTypeEl.addEventListener('change', saveSettings);
 
     loadSettings();
+    // Apply any current selection to the UI
+    applySelectedPlantToUI();
+
+    // Listen for selection changes from other windows/tabs
+    window.addEventListener('storage', (e)=>{
+      if(!e) return;
+      if(!e.key) return;
+      if(e.key.startsWith('leafie.selected') || e.key==='leafie.currentPlant' || e.key==='leafie.selection' || e.key==='leafie.plants' || e.key==='leafie.settings'){
+        // Re-apply selection and settings
+        applySelectedPlantToUI();
+      }
+    });
   </script>
 </body>
 </html>
