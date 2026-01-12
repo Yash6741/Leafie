@@ -1,4 +1,4 @@
-ß<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -6,60 +6,55 @@
   <title>Leafie — Settings</title>
   <style>
     :root{
-      --bg: #f3fbf3;
-      --panel: #ffffff;
-      --muted: #dff0e6;
-      --accent: #2e7d32;
-      --green: #66bb6a;
-      --dark: #0f1720;
-      --shadow: 0 4px 10px rgba(30,80,50,0.06);
+      --bg:#f3fbf3;
+      --panel:#ffffff;
+      --accent:#2e7d32;
+      --green:#66bb6a;
+      --dark:#0f1720;
+      --shadow:0 4px 10px rgba(30,80,50,0.06);
     }
     html,body{height:100%;}
-    body{margin:0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:var(--bg); color:var(--dark); display:flex;}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,Arial;background:var(--bg);color:var(--dark);display:flex;}
 
-    .sidebar{width:220px; background:#eaf6ea; padding:28px 20px; box-shadow: inset -1px 0 0 rgba(0,0,0,0.03); display:flex; flex-direction:column; gap:18px;}
-    .brand{display:flex; align-items:center; gap:10px; font-weight:700; color:var(--green);}
-    .nav{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
-    .nav a{ color:#2f4a50; text-decoration:none; padding:10px 8px; border-radius:8px; display:flex; gap:10px; align-items:center; }
-    .nav a.active{ background:rgba(0,0,0,0.03); }
-    .footer-note{ margin-top:auto; font-size:13px; color:#2f6b5b; }
+    .sidebar{width:220px;background:#eaf6ea;padding:28px 20px;display:flex;flex-direction:column;gap:18px;}
+    .brand{font-weight:700;color:var(--green);}
+    .nav{margin-top:12px;display:flex;flex-direction:column;gap:12px;}
+    .nav a{color:#2f4a50;text-decoration:none;padding:10px 8px;border-radius:8px;}
+    .nav a.active{background:rgba(0,0,0,0.05);}
+    .footer-note{margin-top:auto;font-size:13px;color:#2f6b5b;}
 
-    main{flex:1; padding:28px;}
-    .page-title{ font-size:28px; font-weight:800; margin-bottom:18px; }
+    main{flex:1;padding:28px;}
+    .page-title{font-size:28px;font-weight:800;margin-bottom:18px;}
 
-    .row{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; align-items:start; }
-    .card{ background:var(--panel); border-radius:10px; padding:20px; box-shadow:var(--shadow); border:1px solid rgba(28,90,48,0.06); }
-    .card h3{ margin:0 0 8px 0; font-size:20px; }
-    .muted{ color:#2b6b8a; margin-bottom:12px; }
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+    .card{background:var(--panel);border-radius:10px;padding:20px;box-shadow:var(--shadow);}
+    .card h3{margin:0 0 8px 0;font-size:20px;}
+    .muted{color:#2b6b8a;margin-bottom:12px;}
 
-    .form-group{ margin:12px 0; }
-    label{ display:block; font-size:14px; margin-bottom:8px; }
-    input[type="text"], select{ width:100%; padding:12px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:#f6fbf6; }
+    .form-group{margin:12px 0;}
+    label{display:block;font-size:14px;margin-bottom:8px;}
+    select{width:100%;padding:12px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);background:#f6fbf6;}
 
-    /* Toggle */
-    .toggle{ display:inline-flex; align-items:center; gap:12px; }
-    .switch{ width:50px; height:28px; background:#e6f2e7; border-radius:999px; position:relative; display:inline-block; cursor:pointer; }
-    .knob{ width:22px; height:22px; background:white; border-radius:50%; position:absolute; top:3px; left:3px; box-shadow:0 2px 6px rgba(0,0,0,0.12); transition:all .18s ease; }
-    .switch.on{ background:var(--green); }
-    .switch.on .knob{ left:25px; }
+    .switch{width:50px;height:28px;background:#e6f2e7;border-radius:999px;position:relative;cursor:pointer;}
+    .knob{width:22px;height:22px;background:white;border-radius:50%;position:absolute;top:3px;left:3px;transition:.18s;}
+    .switch.on{background:var(--green);}
+    .switch.on .knob{left:25px;}
 
-    /* slider */
-    .slider-wrap{ margin-top:8px; }
-    input[type=range]{ width:100%; height:12px; appearance:none; background:transparent; }
-    input[type=range]::-webkit-slider-runnable-track{ height:10px; background:#e9f4e9; border-radius:999px; }
-    input[type=range]::-webkit-slider-thumb{ appearance:none; margin-top:-6px; width:20px; height:20px; border-radius:50%; background:var(--green); border:6px solid #e9f4e9; box-shadow:0 2px 6px rgba(0,0,0,0.12); }
+    input[type=range]{width:100%;appearance:none;background:transparent;}
+    input[type=range]::-webkit-slider-runnable-track{height:10px;background:#e9f4e9;border-radius:999px;}
+    input[type=range]::-webkit-slider-thumb{appearance:none;margin-top:-6px;width:20px;height:20px;border-radius:50%;background:var(--green);border:6px solid #e9f4e9;}
 
-    .small{ font-size:13px; color:#2b6b8a; }
+    button{padding:12px;border-radius:8px;border:none;background:var(--green);color:white;font-weight:600;cursor:pointer;width:100%;margin-top:10px;}
 
-    @media (max-width:1000px){ .row{ grid-template-columns: 1fr; } .sidebar{display:none;} }
+    @media(max-width:1000px){
+      .row{grid-template-columns:1fr;}
+      .sidebar{display:none;}
+    }
   </style>
 </head>
 <body>
   <aside class="sidebar">
-    <div class="brand">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 12C6 7 9 4 12 4s6 3 6 8c0 5-6 9-6 9S6 17 6 12z" stroke="#66bb6a" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Leafie
-    </div>
+    <div class="brand">Leafie</div>
     <nav class="nav">
       <a href="leafy.html">🏠 Dashboard</a>
       <a href="#">🌱 Plants</a>
@@ -73,178 +68,116 @@
     <div class="row">
       <div class="card">
         <h3>Plant Profile</h3>
-        <div class="muted">Personalize the details for your currently selected plant.</div>
-        <div class="form-group">
-          <label for="plantName">Plant Name</label>
-          <input id="plantName" type="text" placeholder="My Fiddle Leaf">
-        </div>
         <div class="form-group">
           <label for="plantType">Plant Type</label>
           <select id="plantType">
-            <option value="fiddle">Fiddle Leaf Plant</option>
-            <option value="Hole plant">Hole Plant</option>
-            <option value="Peace Lily">Peace Lily</option>
             <option value="Gold Palm">Gold Palm</option>
-        </select>
+            <option value="Hole Plant">Hole Plant</option>
+            <option value="Peace Lily">Peace Lily</option>
+            <option value="Fiddle Leaf">Fiddle Leaf Plant</option>
+          </select>
         </div>
       </div>
 
       <div class="card">
         <h3>Watering Settings</h3>
-        <div class="muted">Adjust settings for your 'My Fiddle Leaf'.</div>
 
         <div class="form-group">
           <label>Automatic Watering</label>
-          <div class="small">Automatically water when moisture drops below threshold.</div>
-          <div style="margin-top:10px; display:flex; justify-content:flex-end;">
-            <div class="toggle">
-              <div id="autoSwitch" class="switch" role="switch" aria-checked="false"><div class="knob"></div></div>
+          <div style="display:flex;justify-content:flex-end;">
+            <div id="autoSwitch" class="switch">
+              <div class="knob"></div>
             </div>
           </div>
         </div>
 
         <div class="form-group">
-          <label>Moisture Threshold: <span id="thresholdLabel">40%</span></label>
-          <div class="small">Set the soil moisture level that triggers automatic watering.</div>
-          <div class="slider-wrap">
-            <input id="threshold" type="range" min="0" max="100" value="40">
-          </div>
+          <label>Moisture Threshold: <span id="thresholdLabel">50%</span></label>
+          <input id="threshold" type="range" min="0" max="100">
         </div>
 
+        <button id="connectBtn">Connect micro:bit</button>
+        <button id="sendBtn">Send Threshold</button>
       </div>
     </div>
   </main>
 
   <script>
-    // Local state and persistence
-    const plantNameEl = document.getElementById('plantName');
     const plantTypeEl = document.getElementById('plantType');
-    const autoSwitch = document.getElementById('autoSwitch');
     const thresholdEl = document.getElementById('threshold');
     const thresholdLabel = document.getElementById('thresholdLabel');
-    let currentSelectedPlantId = null;
+    const autoSwitch = document.getElementById('autoSwitch');
+    const connectBtn = document.getElementById('connectBtn');
+    const sendBtn = document.getElementById('sendBtn');
 
-    function tryParseJSON(v){ try{ return JSON.parse(v); }catch(e){ return null; } }
+    const PLANT_THRESHOLDS = {
+      "Gold Palm":60,
+      "Hole Plant":40,
+      "Peace Lily":60,
+      "Fiddle Leaf":50
+    };
 
-    function getPlantStore(){
-      return tryParseJSON(localStorage.getItem('leafie.plants')) || {};
-    }
+    const SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    const TX_UUID = "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
+    let txChar = null;
 
-    function savePlantStore(store){
-      localStorage.setItem('leafie.plants', JSON.stringify(store));
-    }
-
-    function loadPlantThreshold(id){
-      const store = getPlantStore();
-      if(store[id] && store[id].threshold!=null) return store[id].threshold;
-      // also support legacy field names
-      if(store[id] && store[id].desiredThreshold!=null) return store[id].desiredThreshold;
-      return null;
-    }
-
-    function savePlantThreshold(id, value){
-      const store = getPlantStore();
-      store[id] = store[id] || {};
-      store[id].threshold = parseInt(value,10);
-      savePlantStore(store);
-    }
-
-    function detectSelectedPlant(){
-      // try multiple possible keys used elsewhere in app
-      const keys = ['leafie.selectedPlant','leafie.currentPlant','leafie.selection','leafie.selected','leafie.selectedPlants'];
-      for(const k of keys){
-        const raw = localStorage.getItem(k);
-        if(!raw) continue;
-        const val = tryParseJSON(raw);
-        if(typeof val === 'string') return val;
-        if(Array.isArray(val)){
-          if(val.length===1){
-            const e = val[0];
-            if(typeof e === 'string') return e;
-            if(e && e.id) return e.id;
-          }
-          // if multiple selected, return null (we only target single selection here)
-          return null;
-        }
-        if(val && typeof val === 'object'){
-          if(val.id) return val.id;
-          // if object keyed by id
-          const keys2 = Object.keys(val);
-          if(keys2.length===1) return keys2[0];
-        }
-      }
-      return null;
-    }
-
-    function applySelectedPlantToUI(){
-      const id = detectSelectedPlant();
-      currentSelectedPlantId = id;
-      if(id){
-        // if single plant is selected, load its threshold into the main slider
-        const pval = loadPlantThreshold(id);
-        if(pval!=null){
-          thresholdEl.value = pval;
-          thresholdLabel.textContent = thresholdEl.value + '%';
-        } else {
-          // fallback to global or stored default
-          const s = JSON.parse(localStorage.getItem('leafie.settings')||'{}');
-          thresholdEl.value = (s.threshold!=null? s.threshold: 40);
-          thresholdLabel.textContent = thresholdEl.value + '%';
-        }
-      } else {
-        // no single selection: revert to global settings
-        const s = JSON.parse(localStorage.getItem('leafie.settings')||'{}');
-        thresholdEl.value = (s.threshold!=null? s.threshold: 40);
-        thresholdLabel.textContent = thresholdEl.value + '%';
-      }
+    function setSwitch(on){
+      autoSwitch.classList.toggle('on',on);
     }
 
     function loadSettings(){
       const s = JSON.parse(localStorage.getItem('leafie.settings')||'{}');
-      plantNameEl.value = s.name || 'My Fiddle Leaf';
-      plantTypeEl.value = s.type || 'fiddle';
-      const auto = !!s.auto;
-      setSwitch(auto);
-      thresholdEl.value = (s.threshold!=null? s.threshold: 40);
-      thresholdLabel.textContent = thresholdEl.value + '%';
+      plantTypeEl.value = s.type || "Fiddle Leaf";
+      setSwitch(!!s.auto);
+      const t = s.threshold ?? PLANT_THRESHOLDS[plantTypeEl.value];
+      thresholdEl.value = t;
+      thresholdLabel.textContent = t + "%";
     }
 
     function saveSettings(){
-      const s = { name:plantNameEl.value, type:plantTypeEl.value, auto: autoSwitch.classList.contains('on'), threshold: parseInt(thresholdEl.value,10) };
-      localStorage.setItem('leafie.settings', JSON.stringify(s));
+      localStorage.setItem('leafie.settings',JSON.stringify({
+        type:plantTypeEl.value,
+        auto:autoSwitch.classList.contains('on'),
+        threshold:parseInt(thresholdEl.value,10)
+      }));
     }
 
-    function setSwitch(on){
-      if(on){ autoSwitch.classList.add('on'); autoSwitch.setAttribute('aria-checked','true'); } else { autoSwitch.classList.remove('on'); autoSwitch.setAttribute('aria-checked','false'); }
-    }
+    plantTypeEl.onchange = ()=>{
+      const t = PLANT_THRESHOLDS[plantTypeEl.value];
+      thresholdEl.value = t;
+      thresholdLabel.textContent = t + "%";
+      saveSettings();
+    };
 
-    autoSwitch.addEventListener('click', ()=>{ autoSwitch.classList.toggle('on'); saveSettings(); });
+    thresholdEl.oninput = ()=>{
+      thresholdLabel.textContent = thresholdEl.value + "%";
+    };
 
-    // Update label live. Save target-specific if a single plant is selected on change.
-    thresholdEl.addEventListener('input', ()=>{ thresholdLabel.textContent = thresholdEl.value + '%'; });
-    thresholdEl.addEventListener('change', ()=>{
-      if(currentSelectedPlantId){
-        savePlantThreshold(currentSelectedPlantId, thresholdEl.value);
-      } else {
-        saveSettings();
-      }
-    });
-    plantNameEl.addEventListener('change', saveSettings);
-    plantTypeEl.addEventListener('change', saveSettings);
+    thresholdEl.onchange = saveSettings;
+
+    autoSwitch.onclick = ()=>{
+      autoSwitch.classList.toggle('on');
+      saveSettings();
+    };
+
+    connectBtn.onclick = async ()=>{
+      const device = await navigator.bluetooth.requestDevice({
+        filters:[{namePrefix:"BBC micro:bit"}],
+        optionalServices:[SERVICE_UUID]
+      });
+      const server = await device.gatt.connect();
+      const service = await server.getPrimaryService(SERVICE_UUID);
+      txChar = await service.getCharacteristic(TX_UUID);
+      alert("Connected");
+    };
+
+    sendBtn.onclick = async ()=>{
+      if(!txChar) return;
+      const value = thresholdEl.value + "\n";
+      await txChar.writeValue(new TextEncoder().encode(value));
+    };
 
     loadSettings();
-    // Apply any current selection to the UI
-    applySelectedPlantToUI();
-
-    // Listen for selection changes from other windows/tabs
-    window.addEventListener('storage', (e)=>{
-      if(!e) return;
-      if(!e.key) return;
-      if(e.key.startsWith('leafie.selected') || e.key==='leafie.currentPlant' || e.key==='leafie.selection' || e.key==='leafie.plants' || e.key==='leafie.settings'){
-        // Re-apply selection and settings
-        applySelectedPlantToUI();
-      }
-    });
   </script>
 </body>
 </html>
