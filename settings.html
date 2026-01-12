@@ -123,23 +123,29 @@
 
     function loadSettings(){
       const s = JSON.parse(localStorage.getItem('leafie.settings') || '{}');
-      plantTypeEl.value = s.type || "Fiddle Leaf";
+      const plant = s.type || "Fiddle Leaf";
+      plantTypeEl.value = plant;
       setSwitch(!!s.auto);
-      const t = s.threshold ?? PLANT_THRESHOLDS[plantTypeEl.value];
+
+      const savedThresholds = s.thresholds || {};
+      const t = savedThresholds[plant] ?? PLANT_THRESHOLDS[plant];
       thresholdEl.value = t;
       thresholdLabel.textContent = t + "%";
     }
 
     function saveSettings(){
-      localStorage.setItem('leafie.settings', JSON.stringify({
-        type: plantTypeEl.value,
-        auto: autoSwitch.classList.contains('on'),
-        threshold: parseInt(thresholdEl.value,10)
-      }));
+      const s = JSON.parse(localStorage.getItem('leafie.settings') || '{}');
+      s.type = plantTypeEl.value;
+      s.auto = autoSwitch.classList.contains('on');
+      s.thresholds = s.thresholds || {};
+      s.thresholds[plantTypeEl.value] = parseInt(thresholdEl.value,10);
+      localStorage.setItem('leafie.settings', JSON.stringify(s));
     }
 
     plantTypeEl.addEventListener('change', ()=>{
-      const t = PLANT_THRESHOLDS[plantTypeEl.value];
+      const s = JSON.parse(localStorage.getItem('leafie.settings') || '{}');
+      const savedThresholds = s.thresholds || {};
+      const t = savedThresholds[plantTypeEl.value] ?? PLANT_THRESHOLDS[plantTypeEl.value];
       thresholdEl.value = t;
       thresholdLabel.textContent = t + "%";
       saveSettings();
