@@ -1,483 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Leafie Dashboard</title>
-	<style>
-		:root{
-			--bg: #f3fbf3;
-			--panel: #ffffff;
-			--muted: #dff0e6;
-			--accent: #2e7d32;
-			--green: #66bb6a;
-			--dark: #0f1720;
-			--shadow: 0 4px 10px rgba(30,80,50,0.06);
-		}
-		html,body{height:100%;}
-		body{
-			margin:0; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-			background: var(--bg); color:var(--dark);
-			display:flex; min-height:100vh;
-		}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leafie Dashboard</title>
 
-		.sidebar{
-			width:220px; background:#eaf6ea; padding:28px 20px; box-shadow: inset -1px 0 0 rgba(0,0,0,0.03);
-			display:flex; flex-direction:column; gap:18px;
-		}
-		.brand{display:flex; align-items:center; gap:10px; font-weight:700; color:var(--green);}
-		.nav{ margin-top:12px; display:flex; flex-direction:column; gap:12px; }
-		.nav a{ color:#2f4a50; text-decoration:none; padding:8px 6px; border-radius:8px; display:flex; gap:10px; align-items:center; }
-		.nav a:hover{ background:rgba(0,0,0,0.03); }
-		.footer-note{ margin-top:auto; font-size:13px; color:#2f6b5b; }
-
-
-		.main{flex:1; padding:28px;}
-		.header{ display:flex; align-items:center; gap:20px; }
-		.page-title{ font-size:28px; font-weight:800; }
-
-		.grid{ margin-top:18px; display:grid; grid-template-columns: 360px 1fr; gap:18px; }
-
-		.card{ background:var(--panel); border-radius:10px; padding:18px; box-shadow:var(--shadow); border:1px solid rgba(28,90,48,0.06); }
-
-		.card h3{ margin:0 0 12px 0; font-size:20px; display:flex; align-items:center; gap:8px; }
-
-
-		.conn-status{ font-size:13px; color:#31708f; margin-bottom:12px; }
-		.big-btn{ display:inline-flex; align-items:center; gap:10px; padding:12px 18px; background:var(--green); color:white; border-radius:8px; border:none; font-weight:600; cursor:pointer; }
-		.big-btn[disabled]{ background:#cfcfcf; cursor:default; }
-
-		.plant-card{ display:flex; gap:18px; align-items:stretch; }
-		.plant-card img{ width:260px; height:180px; object-fit:cover; border-radius:8px; }
-		.plant-info{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; }
-		.tag{ background:#ecf7ee; color:var(--green); border-radius:999px; padding:6px 10px; font-size:12px; border:1px solid rgba(102,187,106,0.15); }
-		.plant-name{ font-size:22px; font-weight:800; margin-top:8px; }
-		.plant-desc{ color:#2b5b84; margin-top:12px; }
-
-		
-		@media (max-width:900px){ .grid{ grid-template-columns: 1fr; } .sidebar{display:none;} body{padding:12px;} }
-	</style>
+<style>
+:root{
+  --bg:#f3fbf3;
+  --panel:#ffffff;
+  --accent:#2e7d32;
+  --green:#66bb6a;
+  --dark:#0f1720;
+  --shadow:0 4px 10px rgba(30,80,50,0.06);
+}
+body{
+  margin:0;
+  font-family:Inter,system-ui;
+  background:var(--bg);
+  color:var(--dark);
+  display:flex;
+}
+.sidebar{
+  width:220px;
+  background:#eaf6ea;
+  padding:28px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.nav a{
+  text-decoration:none;
+  color:#2f4a50;
+  padding:8px;
+  border-radius:8px;
+}
+.nav a:hover{background:rgba(0,0,0,.05);}
+.main{flex:1;padding:28px;}
+.card{
+  background:var(--panel);
+  border-radius:10px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+.grid{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:18px;
+}
+</style>
 </head>
+
 <body>
-	<aside class="sidebar">
-		<div class="brand">
-			<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 12C6 7 9 4 12 4s6 3 6 8c0 5-6 9-6 9S6 17 6 12z" stroke="#66bb6a" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
-			Leafie
-		</div>
-		<nav class="nav">
-			<a href="leafy.html">🏠 Dashboard</a>
-			<a href="plants.html">🌱 Plants</a>
-			<a href="settings.html">⚙️ Settings</a>
-		</nav>
-		<div class="footer-note">Happy Planting!</div>
-	</aside>
+<aside class="sidebar">
+  <div style="font-weight:700;color:var(--green)">🌱 Leafie</div>
+  <nav class="nav">
+    <a href="leafy.html">🏠 Dashboard</a>
+    <a href="plants.html">🌱 Plants</a>
+    <a href="settings.html">⚙️ Settings</a>
+  </nav>
+</aside>
 
-	<main class="main">
-		<div class="header">
-			<div class="page-title">Dashboard</div>
-		</div>
+<main class="main">
+  <h1>Dashboard</h1>
 
-		<div class="grid">
+  <div class="grid">
+    <div class="card">
+      <h3>Active Plant</h3>
+      <div id="activePlant">Loading…</div>
+    </div>
+  </div>
+</main>
 
-			<div class="card">
-				<h3>Connection</h3>
-				<div id="connStatus" class="conn-status">Disconnected</div>
-				<div style="margin:16px 0; color:#3b5998">Connect to your Micro:bit to start.</div>
-				<div style="display:flex; gap:10px; align-items:center;">
-					<button id="connectBtn" class="big-btn">📡 Connect</button>
-				</div>
-			</div>
-
-
-			<div class="card">
-				<h3>Active Plant</h3>
-				<div id="activePlantWrap" style="margin-top:6px; border-radius:8px; padding:12px; border:1px solid rgba(46,125,50,0.08);">
-					<!-- Active plant will be rendered here based on saved plants; if none, show placeholder -->
-					<div id="activePlantContent" style="padding:18px; text-align:center; color:#2b6b8a;">Loading...</div>
-				</div>
-			</div>
-
-
-		</div>
-	</main>
-
-	<script>
-	let usbDevice, device, server, service, characteristic;
-	const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-	const CHARACTERISTIC_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-	let usbInterfaceNumber = null, usbInEndpoint = null, usbOutEndpoint = null;
-
-	const connectBtn = document.getElementById('connectBtn');
-	const connStatus = document.getElementById('connStatus');
-
-	connectBtn.addEventListener('click', async ()=>{
-		try{
-
-			connStatus.textContent = 'Searching USB ports for micro:bit...';
-
-			if(navigator.usb){
-				const usbDevices = await navigator.usb.getDevices();
-				usbDevice = usbDevices.find(d => /micro/i.test(d.productName || '')) || null;
-
-				if(!usbDevice){
-					try{
-						usbDevice = await navigator.usb.requestDevice({ filters: [{ vendorId: 0x0D28 }] });
-					}catch(e){
-						usbDevice = null;
-					}
-				}
-
-				if(usbDevice){
-					connStatus.textContent = 'Connecting via USB...';
-					await usbDevice.open();
-					if(usbDevice.configuration === null){
-						try{ await usbDevice.selectConfiguration(1); }catch(e){}
-					}
-					try{
-						const iface = (usbDevice.configuration && usbDevice.configuration.interfaces && usbDevice.configuration.interfaces[0]);
-						if(iface){
-							const interfaceNumber = iface.interfaceNumber;
-							await usbDevice.claimInterface(interfaceNumber);
-						}
-					}catch(e){}
-
-					connStatus.textContent = 'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
-					connectBtn.textContent = 'Connected (USB)';
-									
-									try{ detectUsbEndpoints(usbDevice); startUsbReadLoop(usbDevice); }catch(e){ console.warn('startUsbReadLoop/endpoint detect failed', e); }
-				
-					connectBtn.disabled = true;
-
-	
-					navigator.usb.addEventListener('disconnect', (ev)=>{
-						try{
-							if(ev.device && usbDevice && ev.device === usbDevice){
-								connStatus.textContent = 'USB device disconnected';
-								connectBtn.textContent = 'Connect';
-								connectBtn.disabled = false;
-							
-								usbDevice = null;
-								usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null;
-							}
-						}catch(e){ console.error('Error handling USB disconnect', e); }
-					});
-
-	
-					navigator.usb.addEventListener('connect', (ev)=>{
-						if(ev.device && usbDevice==null && /micro/i.test(ev.device.productName||'')){
-							connStatus.textContent = 'micro:bit connected to USB';
-						}
-					});
-
-					return;
-				}
-			}
-
-					connStatus.textContent = 'USB not found — requesting Bluetooth...';
-				
-					const nameFilters = [ { namePrefix: 'BBC micro:bit' }, { namePrefix: 'micro:bit' }, { namePrefix: 'microbit' } ];
-					try{
-						device = await navigator.bluetooth.requestDevice({ filters: nameFilters, optionalServices: [SERVICE_UUID, 'battery_service', 'device_information'] });
-					}catch(e){
-						
-						try{
-							device = await navigator.bluetooth.requestDevice({ acceptAllDevices: true, optionalServices: [SERVICE_UUID, 'battery_service', 'device_information'] });
-						}catch(err){
-							throw err;
-						}
-					}
-					connStatus.textContent = 'Connecting to ' + (device.name || 'micro:bit') + '...';
-					server = await device.gatt.connect();
-					// handle unexpected disconnects
-					device.addEventListener('gattserverdisconnected', ()=>{
-						connStatus.textContent = 'Bluetooth disconnected';
-						connectBtn.textContent = 'Connect';
-						connectBtn.disabled = false;
-						device = null;
-					});
-		
-					service = await server.getPrimaryService(SERVICE_UUID);
-			
-					characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
-
-					try{
-						const txChar = await service.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
-
-					}catch(e){
-	
-					}
-					connStatus.textContent = 'Connected (BLE: ' + (device.name || 'micro:bit') + ')';
-					connectBtn.textContent = 'Connected';
-					connectBtn.disabled = true;
-
-					try{ await startBleNotifications(server); }catch(e){ console.warn('startBleNotifications failed', e); }
-		}catch(err){
-			connStatus.textContent = 'Connection failed';
-			console.error(err);
-		}
-	});
-
-	let currentMoisture = null;
-	function setMoisture(percent){
-		if(percent == null || isNaN(percent)){
-			currentMoisture = null;
-			return;
-		}
-		currentMoisture = Math.max(0, Math.min(100, Math.round(percent)));
-
-		console.debug('Moisture updated:', currentMoisture);
-	}
-
-	async function startBleNotifications(gattServer){
-		try{
-			const svc = await gattServer.getPrimaryService('6e400001-b5a3-f393-e0a9-e50e24dcca9e');
-			let notifyChar = null;
-			try{
-				notifyChar = await svc.getCharacteristic('6e400003-b5a3-f393-e0a9-e50e24dcca9e');
-			}catch(e){
-				console.warn('TX characteristic not present', e);
-			}
-			if(notifyChar){
-				await notifyChar.startNotifications();
-				notifyChar.addEventListener('characteristicvaluechanged', (ev)=>{
-					try{
-						const value = new TextDecoder().decode(ev.target.value);
-						const m = value.match(/(\d{1,3})/);
-						if(m) setMoisture(Number(m[1]));
-					}catch(e){ console.error('BLE notify parse error', e); }
-				});
-			}
-		}catch(e){ console.warn('No BLE notify characteristic available or subscribe failed', e); }
-	}
-
-	function bleDisconnect(){
-		try{
-			if(device && device.gatt && device.gatt.connected){
-				device.gatt.disconnect();
-			}
-		}catch(e){ console.warn('bleDisconnect error', e); }
-		device = null;
-		connStatus.textContent = 'Disconnected';
-		connectBtn.textContent = 'Connect';
-		connectBtn.disabled = false;
-	}
-
-	let usbReadLoopRunning = false;
-	async function startUsbReadLoop(device){
-		if(!device) return;
-		if(usbReadLoopRunning) return;
-		usbReadLoopRunning = true;
-		try{
-			const config = device.configuration;
-			let inEndpoint = null;
-			if(config && config.interfaces){
-				for(const iface of config.interfaces){
-					for(const alt of iface.alternates || []){
-						for(const ep of alt.endpoints || []){
-							if(ep.direction === 'in'){ inEndpoint = ep.endpointNumber; break; }
-						}
-						if(inEndpoint!=null) break;
-					}
-					if(inEndpoint!=null) break;
-				}
-			}
-
-			while(device && device.opened){
-				if(inEndpoint==null){
-					await new Promise(r=>setTimeout(r,1000));
-					continue;
-				}
-				try{
-					const res = await device.transferIn(inEndpoint, 64);
-					if(res && res.data && res.data.byteLength){
-						const txt = new TextDecoder().decode(res.data);
-						const m = txt.match(/(\d{1,3})/);
-						if(m) setMoisture(Number(m[1]));
-					}
-				}catch(e){
-					console.warn('USB transferIn error', e);
-					break;
-				}
-			}
-		}catch(e){ console.error('USB read loop error', e); }
-		usbReadLoopRunning = false;
-	}
-
-
-	function detectUsbEndpoints(device){
-		usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null;
-		const config = device.configuration;
-		if(!config || !config.interfaces) return;
-		for(const iface of config.interfaces){
-			for(const alt of iface.alternates || []){
-				if(alt.endpoints){
-					for(const ep of alt.endpoints){
-						if(ep.direction === 'in' && usbInEndpoint==null) usbInEndpoint = ep.endpointNumber;
-						if(ep.direction === 'out' && usbOutEndpoint==null) usbOutEndpoint = ep.endpointNumber;
-					}
-					if(usbInEndpoint!=null || usbOutEndpoint!=null){ usbInterfaceNumber = iface.interfaceNumber; break; }
-				}
-			}
-			if(usbInterfaceNumber!=null) break;
-		}
-	}
-
-
-	function renderActivePlant(){
-		const wrap = document.getElementById('activePlantContent');
-		try{
-			const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
-			const plants = (state || []).filter(p => p);
-			if(plants.length){
-				let html = '<div style="display:flex; gap:14px; align-items:flex-start; flex-wrap:wrap;">';
-				for(let i=0;i<plants.length;i++){
-					const p = plants[i] || {};
-					const nameEsc = (p.name||'Plant').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-					const imgId = 'plant-img-' + i;
-					html += `
-						<div style="background:#fff;border-radius:8px;padding:10px;display:flex;gap:12px;align-items:center;min-width:260px;box-shadow:var(--shadow);border:1px solid rgba(28,90,48,0.04);">
-							<img id="${imgId}" src="${placeholderDataUrl()}" alt="${nameEsc}" style="width:96px;height:72px;object-fit:cover;border-radius:6px;">
-							<div style="display:flex;flex-direction:column;align-items:flex-start;">
-								<div class="tag" style="font-size:12px;padding:4px 8px;">${nameEsc}</div>
-								<div style="font-weight:700;margin-top:8px;">${nameEsc}</div>
-								<div class="plant-desc" style="margin-top:6px;">Your personal plant companion.</div>
-							</div>
-						</div>`;
-				}
-				html += '</div>';
-				wrap.innerHTML = html;
-				for(let i=0;i<plants.length;i++){
-					(async function(idx){
-						const p = plants[idx] || {};
-						const imgEl = document.getElementById('plant-img-' + idx);
-						if(!imgEl) return;
-						const found = await findImageForPlant(p, idx);
-						if(found){
-							imgEl.src = found;
-						}
-					})(i);
-				}
-			} else {
-				wrap.innerHTML = `
-					<div style="padding:18px;">
-						<div style="font-weight:700; margin-bottom:8px;">No active plant</div>
-						<div style="color:#2b6b8a; margin-bottom:12px;">Select a plant in the Plants page to show it here.</div>
-							<a class="big-btn" href="plants.html">Select Plant</a>
-					</div>
-				`;
-			}
-		}catch(e){
-			wrap.textContent = 'Error loading plant';
-			console.error(e);
-		}
-	}
-
-	function placeholderDataUrl(){
-		const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'><rect width='100%' height='100%' fill='%23f0fbf0'/><g fill='%2380c080' font-family='sans-serif' font-size='20'><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle'>No Image</text></g></svg>`;
-		return 'data:image/svg+xml;base64,' + btoa(svg);
-	}
-
-
-	function checkImageExists(url, timeout=4000){
-		return new Promise((resolve)=>{
-			if(!url) return resolve(false);
-			// data URLs are assumed valid
-			if(url.startsWith('data:')) return resolve(true);
-			const img = new Image();
-			let done = false;
-			const onSuccess = ()=>{ if(done) return; done=true; resolve(true); cleanup(); };
-			const onFail = ()=>{ if(done) return; done=true; resolve(false); cleanup(); };
-			const cleanup = ()=>{ img.onload = img.onerror = null; clearTimeout(timer); };
-			img.onload = onSuccess;
-			img.onerror = onFail;
-			img.src = url;
-			const timer = setTimeout(()=>{ if(done) return; done=true; resolve(false); cleanup(); }, timeout);
-		});
-	}
-
-	function slugify(name){
-		return (name||'').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-	}
-
-	async function findImageForPlant(p, index){
-		try{
-			if(!p) return null;
-			if(p.img){
-				if(await checkImageExists(p.img)) return p.img;
-			}
-			const name = p.name || '';
-			const slug = slugify(name);
-			const candidates = [];
-			if(slug){
-				candidates.push('./images/' + slug + '.png');
-				candidates.push('./images/' + slug + '.jpg');
-				candidates.push('./images/' + slug + '.jpeg');
-				candidates.push('./images/' + slug + '.webp');
-				candidates.push('./' + slug + '.png');
-				candidates.push('./' + slug + '.jpg');
-				candidates.push('./' + slug + '.jpeg');
-				candidates.push('./' + slug + '.webp');
-			}
-			const lower = (name||'').toLowerCase();
-			if(/peace ?lily|spathiphyllum/.test(lower)){
-				candidates.push('./images/peace-lily.jpg','./images/peace-lily.png','./images/peace-lily.webp');
-			}
-			if(/hole|pothos|devil's ivy|epipremnum|golden pothos/.test(lower)){
-				candidates.push('./images/pothos.jpg','./images/pothos.png','./images/pothos.webp');
-			}
-			const seen = new Set();
-			const uniq = candidates.filter(c=>{ if(!c) return false; if(seen.has(c)) return false; seen.add(c); return true; });
-			for(const c of uniq){
-				if(await checkImageExists(c)){
-					try{
-						const state = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
-						state[index] = state[index] || {};
-						state[index].img = c;
-						localStorage.setItem('leafie.plants', JSON.stringify(state));
-					}catch(e){}
-					return c;
-				}
-			}
-			return null;
-		}catch(e){ console.error('findImageForPlant error', e); return null; }
-	}
-
-	async function autoReconnectUSB(){
-		if(!navigator.usb) return;
-		try{
-			const devices = await navigator.usb.getDevices();
-			const found = devices.find(d => /micro/i.test(d.productName || '')) || null;
-			if(found){
-				usbDevice = found;
-				connStatus.textContent = 'Reconnecting to USB device...';
-				try{
-					await usbDevice.open();
-					if(usbDevice.configuration === null){
-						try{ await usbDevice.selectConfiguration(1); }catch(e){}
-					}
-					try{
-						const iface = (usbDevice.configuration && usbDevice.configuration.interfaces && usbDevice.configuration.interfaces[0]);
-						if(iface){ await usbDevice.claimInterface(iface.interfaceNumber); }
-					}catch(e){}
-									detectUsbEndpoints(usbDevice);
-									try{ startUsbReadLoop(usbDevice); }catch(e){}
-									connStatus.textContent = 'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
-									connectBtn.textContent = 'Connected (USB)';
-									connectBtn.disabled = true;
-					navigator.usb.addEventListener('disconnect', (ev)=>{
-						try{ if(ev.device && ev.device === usbDevice){ connStatus.textContent = 'USB device disconnected'; connectBtn.textContent = 'Connect'; connectBtn.disabled = false; usbDevice = null; usbInterfaceNumber = null; usbInEndpoint = null; usbOutEndpoint = null; } }catch(e){}
-					});
-				}catch(err){
-					console.warn('Auto-reconnect failed:', err);
-					connStatus.textContent = 'Unable to auto-reconnect USB';
-				}
-			}
-		}catch(e){ console.error('Error checking usb devices', e); }
-	}
-
-	renderActivePlant();
-	autoReconnectUSB();
-	</script>
+<script>
+function renderPlant(){
+  const el = document.getElementById('activePlant');
+  const plants = JSON.parse(localStorage.getItem('leafie.plants')||'[]');
+  if(plants.length){
+    el.textContent = plants[0].name || 'Your plant';
+  }else{
+    el.textContent = 'No plant selected';
+  }
+}
+renderPlant();
+</script>
 </body>
 </html>
-
