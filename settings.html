@@ -178,6 +178,7 @@ connectBtn.addEventListener('click', async ()=>{
           await usbDevice.selectConfiguration(1);
         }
 
+await usbDevice.claimInterface(4);
         connStatus.textContent =
           'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
 
@@ -245,12 +246,35 @@ connectBtn.addEventListener('click', async ()=>{
     }
 
     function saveSettings(){
+      
       const s = JSON.parse(localStorage.getItem('leafie.settings') || '{}');
       s.type = plantTypeEl.value;
       s.auto = autoSwitch.classList.contains('on');
       s.thresholds = s.thresholds || {};
       s.thresholds[plantTypeEl.value] = parseInt(thresholdEl.value,10);
       localStorage.setItem('leafie.settings', JSON.stringify(s));
+      
+      async function sendSettingsToMicrobit() 
+      {
+  const threshold = thresholdEl.value;
+  const autoWater = autoSwitch.classList.contains('on') ? "1" : "0";
+  const message = `T:${threshold},A:${autoWater}!`; // Het uitroepteken helpt de micro:bit het einde te herkennen
+  
+  const encoder = new TextEncoder();
+  const data = encoder.encode(message);
+
+  try {
+    if (usbDevice && usbDevice.opened) {
+      // Voor WebUSB/Serial
+      await usbDevice.transferOut(1, data); 
+    } else if (characteristic) {
+      // Voor Bluetooth
+      await characteristic.writeValue(data);
+    }
+  } catch (err) {
+    console.error("Verzenden mislukt:", err);
+  }
+}
     }
 
     plantTypeEl.addEventListener('change', ()=>{
