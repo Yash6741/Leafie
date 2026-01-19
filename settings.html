@@ -5,6 +5,30 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Leafie — Settings</title>
   <style>
+    .conn-status{
+  font-size:13px;
+  color:#31708f;
+  margin-bottom:12px;
+}
+
+.big-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 18px;
+  background:var(--green);
+  color:white;
+  border-radius:8px;
+  border:none;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.big-btn[disabled]{
+  background:#cfcfcf;
+  cursor:default;
+}
+
     :root{
       --bg:#f3fbf3;
       --panel:#ffffff;
@@ -58,12 +82,13 @@
     <div class="brand">Leafie</div>
     <nav class="nav">
       <a href="leafy.html">🏠 Dashboard</a>
-      <a href="#">🌱 Plants</a>
+      <a href="plants.html">🌱 Plants</a>
       <a class="active" href="settings.html">⚙️ Settings</a>
     </nav>
     <div class="footer-note">Happy Planting!</div>
   </aside>
 
+  
   <main>
     <div class="page-title">Settings</div>
     <div class="row">
@@ -80,6 +105,16 @@
           </select>
         </div>
       </div>
+
+      <div class="card">
+  <h3>Connection</h3>
+  <div id="connStatus" class="conn-status">Disconnected</div>
+  <div class="muted">Connect to your Micro:bit to start.</div>
+
+  <div style="display:flex; gap:10px; align-items:center; margin-top:12px;">
+    <button id="connectBtn" class="big-btn">📡 Connect</button>
+  </div>
+</div>
 
       <div class="card">
         <h3>Watering Settings</h3>
@@ -104,6 +139,82 @@
   </main>
 
   <script>
+    let usbDevice, device, server, service, characteristic;
+const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+const CHARACTERISTIC_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+let usbInterfaceNumber = null, usbInEndpoint = null, usbOutEndpoint = null;
+
+const connectBtn = document.getElementById('connectBtn');
+const connStatus = document.getElementById('connStatus');
+
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){
+    connStatus.textContent = 'Reconnecting...';
+  }
+});
+
+connectBtn.addEventListener('click', async ()=>{
+  try{
+    connStatus.textContent = 'Searching USB ports for micro:bit...';
+
+    if(navigator.usb){
+      const usbDevices = await navigator.usb.getDevices();
+      usbDevice = usbDevices.find(d => /micro/i.test(d.productName || '')) || null;
+
+      if(!usbDevice){
+        try{
+          usbDevice = await navigator.usb.requestDevice({
+            filters: [{ vendorId: 0x0D28 }]
+          });
+        }catch(e){
+          usbDevice = null;
+        }
+      }
+
+      if(usbDevice){
+        connStatus.textContent = 'Connecting via USB...';
+        await usbDevice.open();
+        if(usbDevice.configuration === null){
+          await usbDevice.selectConfiguration(1);
+        }
+
+        connStatus.textContent =
+          'Connected via USB: ' + (usbDevice.productName || 'micro:bit');
+
+        connectBtn.textContent = 'Connected (USB)';
+        connectBtn.disabled = true;
+
+        localStorage.setItem('leafie.connected', '1');
+
+        return;
+      }
+    }
+
+    // Bluetooth fallback
+    connStatus.textContent = 'USB not found — requesting Bluetooth...';
+    device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [SERVICE_UUID]
+    });
+
+    connStatus.textContent = 'Connecting...';
+    server = await device.gatt.connect();
+    service = await server.getPrimaryService(SERVICE_UUID);
+    characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+
+    connStatus.textContent = 'Connected (BLE)';
+    connectBtn.textContent = 'Connected';
+    connectBtn.disabled = true;
+    localStorage.setItem('leafie.connected', '1');
+
+
+  }catch(err){
+    connStatus.textContent = 'Connection failed';
+    console.error(err);
+  }
+});
+
+
     const plantTypeEl = document.getElementById('plantType');
     const thresholdEl = document.getElementById('threshold');
     const thresholdLabel = document.getElementById('thresholdLabel');
@@ -163,6 +274,33 @@
     });
 
     loadSettings();
+    window.addEventListener('load', async ()=>{
+  if(localStorage.getItem('leafie.connected') !== '1') return;
+
+  // Prefer USB auto-reconnect
+  if(navigator.usb){
+    try{
+      const devices = await navigator.usb.getDevices();
+      const found = devices.find(d => /micro/i.test(d.productName || ''));
+      if(found){
+        usbDevice = found;
+
+        connStatus.textContent =
+          'Reconnected via USB: ' + (found.productName || 'micro:bit');
+        connectBtn.textContent = 'Connected (USB)';
+        connectBtn.disabled = true;
+        return;
+      }
+    }catch(e){
+      console.warn('USB auto-reconnect failed', e);
+    }
+  }
+
+  // BLE cannot silently reconnect → show hint
+  connStatus.textContent = 'Please reconnect Bluetooth';
+  connectBtn.disabled = false;
+});
+
   </script>
 </body>
 </html>
